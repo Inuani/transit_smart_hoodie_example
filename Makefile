@@ -45,7 +45,7 @@ upload_assets:
 	dfx canister call $(if $(filter https://ic0.app,$(REPLICA_URL)),--ic,) $(CANISTER_NAME) invalidate_cache
 
 gen_cmacs:
-	python3 scripts/hashed_cmacs.py -k 00000000000000000000000000000000 -u 041E53E2E51090 -c 2000 -d src/backend/hashed_cmacs.mo
+	python3 scripts/hashed_cmacs.py -k 00000000000000000000000000000000 -u 047423A2E51090 -c 100 -d src/backend/hashed_cmacs.mo
 
 debug:
 	@echo "Canister name is: $(CANISTER_NAME)"

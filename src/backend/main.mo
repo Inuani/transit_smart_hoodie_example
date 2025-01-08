@@ -9,7 +9,7 @@ import Array "mo:base/Array";
 import Debug "mo:base/Debug";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
-import Ownership "./ownership";
+import Scan "scan";
 
 import Buffer "mo:base/Buffer";
 import Blob "mo:base/Blob";
@@ -25,9 +25,7 @@ shared ({ caller = creator }) actor class () = this {
   type ResponseClass = Server.ResponseClass;
 
   stable var serializedEntries : Server.SerializedEntries = ([], [], [creator]);
-  
-  stable let ownershipState : Ownership.State = Ownership.init(creator);
-  let ownership = Ownership.Code(ownershipState);
+  stable var scan_count : Nat = 0;
 
     type ChunkId = Nat;
     type FileChunk = [Nat8];
@@ -122,39 +120,6 @@ shared ({ caller = creator }) actor class () = this {
         storedFiles.size()
     };
 
-    public shared({ caller }) func add_controller(new_controller : Principal) : async () {
-        await ownership.add_controller(caller, new_controller);
-    };
-
-    public shared({ caller }) func remove_self_controller_and_drop_ownership() : async () {
-        await ownership.remove_self_controller_and_drop_ownership(caller);
-    };
-
-    public query func is_controller(principal : Principal) : async Bool {
-        ownership.is_controller(principal)
-    };
-
-    public query func get_controllers() : async [Principal] {
-        ownershipState.controllers
-    };
-
-   public shared({ caller }) func claim_ownership() : async Bool {
-      await ownership.claim_ownership(caller)
-    };
-
-  //  public shared({ caller }) func drop_ownership() : async () {
-  //          await ownership.drop_ownership(caller)
-  //   };
-
-
-    public query func get_owner() : async Principal {
-      ownershipState.owner
-    };
-
-    public query func is_owner(principal : Principal) : async Bool {
-      principal == ownershipState.owner
-    };
-
 var server = Server.Server({ serializedEntries });
 
   public query ({ caller }) func whoAmI() : async Principal {
@@ -226,32 +191,27 @@ public query func http_request(req : HttpRequest) : async HttpResponse {
 };
 
 public func http_request_update(req : HttpRequest) : async HttpResponse {
- 
+    
+    // Debug.print("Received URL: " # req.url);
 
-    // NFC VALIDATION
-    // let static_files = ["/velcro_boot.webp", "/bundle.js", "/main.css", "/themes.css"];
-    // if (Array.find<Text>(static_files, func(path) { path == req.url }) != null) {
-    //     return await server.http_request_update(req);
-    // };
-
-    // let counter = Scan.scan(req.url, scan_count);
-    // let new_request = {
-    //     url = if (counter > 0) {
-    //         scan_count := counter; 
-    //         "/"
-    //     } else {
-    //         "/edge.html"
+    // if (req.url == "/admin.html") {
+    //   Debug.print("Admin route detected");
+    //     let counter = Scan.scan(req.url, scan_count);
+    //     let new_request = {
+    //         url = if (counter > 0) {
+    //             scan_count := counter;
+    //             "/admin.html"  
+    //         } else {
+    //             "/edge.html"  
+    //         };
+    //         method = req.method;
+    //         body = req.body;
+    //         headers = req.headers;
     //     };
-    //     method = req.method;
-    //     body = req.body;
-    //     headers = req.headers;
+    //     return await server.http_request_update(new_request);
     // };
-    // await server.http_request_update(new_request);
 
-
-
-
-     await server.http_request_update(req);
+    await server.http_request_update(req);
 };
 
   public func invalidate_cache() : async () {
@@ -266,7 +226,6 @@ public func http_request_update(req : HttpRequest) : async HttpResponse {
 
   system func postupgrade() {
     ignore server.cache.pruneAll();
-    ownership.setSelf(Principal.fromActor(this));
 
     entries := [];
   };
