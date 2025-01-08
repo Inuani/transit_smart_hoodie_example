@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Player</title>
+    <link rel="stylesheet" href="/themes.css">
+    <link rel="stylesheet" href="/main.css">
+    <style>
+        .player-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--overlay-light);
+            border-radius: var(--radius-normal);
+            box-shadow: var(--shadow-large);
+        }
+        
+        .track-info {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .track-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        #audio-container {
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        audio {
+            width: 100%;
+        }
+        
+        .error-message {
+            color: #ff4444;
+            padding: 10px;
+            text-align: center;
+            background: #ffebee;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="player-container">
+        <div class="track-info">
+            <h1 class="track-title" id="track-title">Loading...</h1>
+            <p class="track-id" id="track-id"></p>
+        </div>
+        <div id="audio-container">
+            <!-- Audio player will be inserted here -->
+        </div>
+    </div>
+
+    <script src="/bundle.js" type="module"></script>
+</body>
+</html>
