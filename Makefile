@@ -44,8 +44,25 @@ upload_assets:
 	icx-asset --replica $(REPLICA_URL) --pem ~/.config/dfx/identity/raygen/identity.pem sync $(CANISTER_ID_$(shell echo $(CANISTER_NAME) | tr '[:lower:]' '[:upper:]')) src/frontend/public
 	dfx canister call $(if $(filter https://ic0.app,$(REPLICA_URL)),--ic,) $(CANISTER_NAME) invalidate_cache
 
+# gen_cmacs:
+#	python3 scripts/hashed_cmacs.py -k 00000000000000000000000000000000 -u 047423A2E51090 -c 100 -d src/backend/hashed_cmacs.mo
+
 gen_cmacs:
-	python3 scripts/hashed_cmacs.py -k 00000000000000000000000000000000 -u 047423A2E51090 -c 100 -d src/backend/hashed_cmacs.mo
+	python3 scripts/hashed_cmacs.py \
+		-k 00000000000000000000000000000000 \
+		-u 047423A2E51090 \
+		-c 3000 \
+		-o cmacs.json
+
+get_cmacs:
+	dfx canister call $(CANISTER_NAME) get_cmacs
+
+
+upload_cmacs:
+	python3 scripts/batch_cmacs.py cmacs.json $(CANISTER_NAME)
+
+reset_cmacs:
+	dfx canister call $(CANISTER_NAME) update_cmacs "(vec {})"
 
 debug:
 	@echo "Canister name is: $(CANISTER_NAME)"

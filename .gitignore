@@ -6,3 +6,4 @@ package-lock.json
 repomix-output.txt
 .env
 canister_ids.json
+cmacs.json

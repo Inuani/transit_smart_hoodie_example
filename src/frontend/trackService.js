@@ -1,5 +1,5 @@
 
-const CHUNK_SIZE = 2000000; // Match backend chunk size
+const CHUNK_SIZE = 2000000;
 
 export async function uploadFile(file, title, actor, onFinish) {
   const reader = new FileReader();
