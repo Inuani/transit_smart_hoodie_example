@@ -14,34 +14,31 @@ const idlFactory = ({ IDL }) => IDL.Service({
 upload: IDL.Func([IDL.Vec(IDL.Nat8)], [], []),
     
 uploadFinalize: IDL.Func(
-  [IDL.Text, IDL.Text], // [title, contentType]
+  [IDL.Text, IDL.Text, IDL.Text], // [title, artist, contentType]
   [IDL.Variant({
-      ok: IDL.Text,    
+      ok: IDL.Text,
       err: IDL.Text
   })],
   []
 ),
-    
-    getFileChunk: IDL.Func(
-        [IDL.Text, IDL.Nat],  // [title, chunkId]
-        [IDL.Opt(IDL.Record({
-            chunk: IDL.Vec(IDL.Nat8),
-            totalChunks: IDL.Nat,
-            contentType: IDL.Text,
-            title: IDL.Text
-        }))],
-        ["query"]
-    ),
-    
-    listFiles: IDL.Func(
-        [], 
-        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))],
-        ["query"]
-    ),
-    
-    deleteFile: IDL.Func([IDL.Text], [IDL.Bool], []),
-    
-    getStoredFileCount: IDL.Func([], [IDL.Nat], ["query"])
+
+getFileChunk: IDL.Func(
+  [IDL.Text, IDL.Nat], // [title, chunkId]
+  [IDL.Opt(IDL.Record({
+      chunk: IDL.Vec(IDL.Nat8),
+      totalChunks: IDL.Nat,
+      contentType: IDL.Text,
+      title: IDL.Text,
+      artist: IDL.Text  // Add artist field here
+  }))],
+  ["query"]
+),
+
+listFiles: IDL.Func(
+  [],
+  [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text, IDL.Text))], // [title, artist, contentType]
+  ["query"]
+),
 
 });
 

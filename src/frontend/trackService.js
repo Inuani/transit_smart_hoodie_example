@@ -1,7 +1,7 @@
 
 const CHUNK_SIZE = 2000000;
 
-export async function uploadFile(file, title, actor, onFinish) {
+export async function uploadFile(file, title, artist, actor, onFinish) {
   const reader = new FileReader();
   const contentType = file.type;
   const progressDiv = document.getElementById('upload-progress');
@@ -23,8 +23,8 @@ export async function uploadFile(file, title, actor, onFinish) {
           await actor.upload(Array.from(chunk));
         }
 
-        // Finalize upload with title
-        const result = await actor.uploadFinalize(title, file.type);
+
+        const result = await actor.uploadFinalize(title, artist, file.type);
         
         // Check for errors in the Result type
         if ('err' in result) {
@@ -86,21 +86,21 @@ export async function loadAudio(auth) {
         const trackList = document.getElementById('track-list');
         trackList.innerHTML = '';
 
-        for (const [title, contentType] of files) {
+        for (const [title, artist, contentType] of files) {
             const trackItem = document.createElement('div');
             trackItem.className = 'track-item';
             
             // Add title and play button
             trackItem.innerHTML = `
-                <span>${title}</span>
+                 <span>${title} - ${artist}</span>
                 <div>
-                    <button class="play-btn">Play</button>
+                    <button class="btn">Play</button>
                     <button class="delete-btn">Delete</button>
                 </div>
             `;
             
             // Add click handler for playing
-            trackItem.querySelector('.play-btn').addEventListener('click', async () => {
+            trackItem.querySelector('.btn').addEventListener('click', async () => {
                 await loadSingleTrack(actor, title, audioContainer);
             });
             
@@ -125,6 +125,7 @@ export async function loadSingleTrack(actor, title, container) {
         let chunks = [];
         let contentType;
         let totalChunks;
+        let artist;
 
         // Get first chunk to get metadata
         const firstChunkResponse = await actor.getFileChunk(title, 0);
@@ -138,7 +139,18 @@ export async function loadSingleTrack(actor, title, container) {
         const firstChunk = firstChunkResponse[0];
         contentType = firstChunk.contentType;
         totalChunks = Number(firstChunk.totalChunks);
+        artist = firstChunk.artist;
         chunks.push(firstChunk.chunk);
+
+        const titleElement = document.getElementById('track-title');
+        const artistElement = document.getElementById('track-artist');
+        
+        if (titleElement) {
+            titleElement.textContent = title; // Update the title
+        }
+        if (artistElement) {
+            artistElement.textContent = artist || 'Unknown Artist';
+        }
 
         // Get remaining chunks
         for (chunkId = 1; chunkId < totalChunks; chunkId++) {
@@ -189,11 +201,46 @@ export async function loadSingleTrack(actor, title, container) {
 export async function initUpload(auth) {
     const fileInput = document.getElementById('file-input');
     const titleInput = document.getElementById('file-title');
+    const artistInput = document.getElementById('file-artist');
     const uploadProgress = document.getElementById('upload-progress');
+    const uploadButton = document.getElementById('upload-button');
 
-    fileInput.addEventListener('change', async (e) => {
+    // Create a new button with the .btn class
+    const fileInputWrapper = document.createElement('div');
+    fileInputWrapper.className = 'file-input-wrapper';
+    
+    const customButton = document.createElement('label');
+    customButton.className = 'btn';
+    customButton.textContent = 'Choose File';
+    customButton.htmlFor = 'file-input';
+    
+    // Hide the original file input but keep it functional
+    fileInput.style.display = 'none';
+    
+    // Insert the custom button before the original input
+    fileInput.parentNode.insertBefore(fileInputWrapper, fileInput);
+    fileInputWrapper.appendChild(fileInput);
+    fileInputWrapper.appendChild(customButton);
+    
+    // Add a span to show selected filename
+    const fileNameDisplay = document.createElement('span');
+    fileNameDisplay.className = 'file-name-display';
+    fileNameDisplay.textContent = 'No file chosen';
+    fileInputWrapper.appendChild(fileNameDisplay);
+
+    // Update filename display when file is selected
+    fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
+        if (file) {
+            fileNameDisplay.textContent = file.name;
+        }
+    });
+
+    // Handle the upload when button is clicked
+    uploadButton.addEventListener('click', async () => {
+        const file = fileInput.files[0];
         const title = titleInput.value.trim();
+        const artist = artistInput.value.trim();
         
         // Validate inputs
         if (!file) {
@@ -206,18 +253,24 @@ export async function initUpload(auth) {
             return;
         }
 
+        if (!artist) {
+            uploadProgress.textContent = 'Please enter an artist';
+            return;
+        }
+
         try {
             uploadProgress.textContent = 'Starting upload...';
             const actor = auth.getCurrentActor();
             
-            // Use the uploadFile function with a callback
-            await uploadFile(file, title, actor, async () => {
+            await uploadFile(file, title, artist, actor, async () => {
                 await loadAudio(auth);
             });
 
             // Clear inputs
             fileInput.value = '';
             titleInput.value = '';
+            artistInput.value = '';
+            fileNameDisplay.textContent = 'No file chosen';
             
         } catch (error) {
             uploadProgress.textContent = `Upload failed: ${error.message}`;
@@ -225,40 +278,44 @@ export async function initUpload(auth) {
         }
     });
 
-    // Add keyboard support for the title input
+    // Remove automatic upload on Enter key
     titleInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && fileInput.files[0]) {
-            const event = new Event('change');
-            fileInput.dispatchEvent(event);
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent default behavior
+        }
+    });
+
+    artistInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent default behavior
         }
     });
 }
 
 export async function initTrackPage(auth) {
-    // Get track ID from URL
     const params = new URLSearchParams(window.location.search);
     const trackId = params.get('id');
     
-    // Get references to DOM elements
     const titleElement = document.getElementById('track-title');
-    const trackIdElement = document.getElementById('track-id');
+    const artistElement = document.getElementById('track-artist');
     const audioContainer = document.getElementById('audio-container');
-    
-    // Update track ID display
-    trackIdElement.textContent = `Track ID: ${trackId || 'Not specified'}`;
     
     if (!trackId) {
         titleElement.textContent = 'No track specified';
+        artistElement.textContent = '';
         audioContainer.innerHTML = '<div class="error-message">Please specify a track ID in the URL</div>';
         return;
     }
 
     try {
-        titleElement.textContent = `Loading track: ${trackId}`;
+        titleElement.textContent = 'Loading...';
+        artistElement.textContent = 'Loading...';
         const actor = auth.getCurrentActor();
         await loadSingleTrack(actor, trackId, audioContainer);
     } catch (error) {
         console.error('Error loading track:', error);
+        titleElement.textContent = 'Error loading track';
+        artistElement.textContent = '';
         audioContainer.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
     }
 }

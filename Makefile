@@ -2,7 +2,7 @@ include .env
 
 # Access routes in a local replica
 # canisterId.localhost:4943/whatever_route
-# http://bw4dl-smaaa-aaaaa-qaacq-cai.localhost:4943/hi
+# http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943
 
 #icx-asset --replica http://127.0.0.1:4943 --pem ~/.config/dfx/identity/raygen/identity.pem upload $(CANISTER_ID_VELCRO_BOOT) /index.html=src/frontend/public/index.html
 

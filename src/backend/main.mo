@@ -30,6 +30,7 @@ shared ({ caller = creator }) actor class () = this {
     type FileChunk = [Nat8];
     type StoredFile = {
         title: Text;
+        artist: Text; 
         contentType: Text;
         totalChunks: Nat;
         data: [FileChunk];
@@ -52,7 +53,7 @@ shared ({ caller = creator }) actor class () = this {
         };
     };
 
-    public func uploadFinalize(title: Text, contentType: Text) : async Result.Result<Text, Text> {
+    public func uploadFinalize(title: Text, artist: Text, contentType: Text) : async Result.Result<Text, Text> {
     if (storedFiles.size() >= maxFiles and Option.isNull(storedFiles.get(title))) {
         return #err("Maximum number of files reached");
     };
@@ -71,6 +72,7 @@ shared ({ caller = creator }) actor class () = this {
     
     storedFiles.put(title, {
         title = title;
+        artist = artist; 
         contentType = contentType;
         totalChunks = totalChunks;
         data = chunks;
@@ -85,6 +87,7 @@ shared ({ caller = creator }) actor class () = this {
         totalChunks: Nat;
         contentType: Text;
         title: Text;
+        artist: Text;
     } {
         switch(storedFiles.get(title)) {
             case(null) { null };
@@ -95,18 +98,19 @@ shared ({ caller = creator }) actor class () = this {
                     totalChunks = file.totalChunks;
                     contentType = file.contentType;
                     title = file.title;
+                    artist = file.artist; 
                 }
             };
         };
     };
 
-    public query func listFiles() : async [(Text, Text)] {
-        let entries = Iter.toArray(storedFiles.entries());
-        Array.map<(Text, StoredFile), (Text, Text)>(
-            entries,
-            func((title, file)) = (title, file.contentType)
-        )
-    };
+   public query func listFiles() : async [(Text, Text, Text)] {
+    let entries = Iter.toArray(storedFiles.entries());
+    Array.map<(Text, StoredFile), (Text, Text, Text)>(
+        entries,
+        func((title, file)) = (title, file.artist, file.contentType)  // Added artist
+    )
+};
 
     public func deleteFile(title: Text) : async Bool {
         switch(storedFiles.remove(title)) {
@@ -201,43 +205,46 @@ public query func get_cycle_balance() : async Nat {
       cmacs
   };
 
+  private func normalizeUrl(url: Text) : Text {
+    switch (Text.endsWith(url, #text "/")) {
+        case true {
+            let trimmedSlash = Text.trimEnd(url, #text "/");
+            let trimmedDot = Text.trimEnd(trimmedSlash, #text ".");
+            if (Text.contains(trimmedDot, #text ".")) {
+                trimmedDot
+            } else {
+                trimmedDot # ".html"
+            };
+        };
+        case false {
+            if (Text.contains(url, #text ".")) {
+                url
+            } else {
+                url # ".html"
+            };
+        };
+    };
+};
+
 
 public query func http_request(req : HttpRequest) : async HttpResponse {
 
  let request = {
-        url = switch (Text.endsWith(req.url, #text "/")) {
-            case true {
-                let trimmedSlash = Text.trimEnd(req.url, #text "/");
-                let trimmedDot = Text.trimEnd(trimmedSlash, #text ".");
-                if (Text.contains(trimmedDot, #text ".")) {
-                  trimmedDot
-                } else {
-                  trimmedDot # ".html"
-                }
-            };
-            case false {
-                if (Text.contains(req.url, #text ".")) {
-                    req.url
-                } else {
-                    req.url # ".html"
-                }
-            };
-        };
+        url = normalizeUrl(req.url);
         method = req.method;
         body = req.body;
         headers = req.headers;
     };
 
-
-
-    if (Text.contains(request.url, #text "admin.html")) {
+    if (Text.contains(request.url, #text "admin.html") or Text.contains(request.url, #text "track.html")) 
+    {
         return {
             status_code = 426;
             headers = [];
             body = Blob.fromArray([]);
             streaming_strategy = null;
             upgrade = ?true;
-        }
+        };
     };
 
     server.http_request(request);
@@ -247,46 +254,29 @@ public query func http_request(req : HttpRequest) : async HttpResponse {
 public func http_request_update(req : HttpRequest) : async HttpResponse {
 
 let request = {
-        url = switch (Text.endsWith(req.url, #text "/")) {
-            case true {
-                let trimmedSlash = Text.trimEnd(req.url, #text "/");
-                let trimmedDot = Text.trimEnd(trimmedSlash, #text ".");
-                if (Text.contains(trimmedDot, #text ".")) {
-                  trimmedDot
-                } else {
-                  trimmedDot # ".html"
-                }
-            };
-            case false {
-                if (Text.contains(req.url, #text ".")) {
-                    req.url
-                } else {
-                    req.url # ".html"
-                }
-            };
-        };
+        url = normalizeUrl(req.url);
         method = req.method;
         body = req.body;
         headers = req.headers;
     };
 
 
-    if (Text.contains(request.url, #text "admin.html")) {
-      let counter = Scan.scan(cmacs, req.url, scan_count);
-        let new_request = {
-            url = if (counter > 0) {
-                scan_count := counter;
-                "/admin.html"  
-            } else {
-                "/edge.html"  
-            };
-            method = request.method;
-            body = request.body;
-            headers = request.headers;
-        };
-        return await server.http_request_update(new_request);
-    };
-    await server.http_request_update(req);
+    // if (Text.contains(request.url, #text "admin.html")) {
+    //   let counter = Scan.scan(cmacs, req.url, scan_count);
+    //     let new_request = {
+    //         url = if (counter > 0) {
+    //             scan_count := counter;
+    //             "/admin.html"  
+    //         } else {
+    //             "/edge.html"  
+    //         };
+    //         method = request.method;
+    //         body = request.body;
+    //         headers = request.headers;
+    //     };
+    //     return await server.http_request_update(new_request);
+    // };
+    await server.http_request_update(request);
 };
 
   public func invalidate_cache() : async () {

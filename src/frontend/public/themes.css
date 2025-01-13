@@ -1,16 +1,15 @@
 /* themes.css */
 :root {
     /* Brand Colors */
-    --primary: #FF6B6B;
-    --secondary: #4ECDC4;
-    --tertiary: #45B7D1;
-    --success: #96E6A1;
+    --primary-color: #ff3366;
+    --secondary-color: #6c63ff;
+    --background-dark: #121212;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+
+    --button-bg: #ff3366;
+    --button-hover: #ff4477;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(-45deg, #FF6B6B, #4ECDC4);
-    --gradient-background: linear-gradient(-45deg, #FF6B6B, #4ECDC4, #45B7D1, #96E6A1);
-    --gradient-button: linear-gradient(-45deg, #FF6B6B, #4ECDC4);
-    --gradient-energy: linear-gradient(45deg, var(--primary), var(--secondary), var(--tertiary));
     
     /* Overlays & Transparency */
     --overlay-light: rgba(255, 255, 255, 0.8);
