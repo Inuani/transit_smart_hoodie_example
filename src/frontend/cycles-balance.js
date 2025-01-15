@@ -1,3 +1,4 @@
+// src/frontend/compute-fuel.js
 import { actor } from './actor.js';
 import elements from './elements.js';
 
@@ -26,29 +27,25 @@ async function updateBalance() {
         const rawBalance = elements.energy.balance();
         const percentageElement = elements.energy.percentage();
 
-            energyFill.style.width = `${percentage}%`;
+        energyFill.style.width = `${percentage}%`;
             
-            if (percentage < 20) {
-                energyFill.style.background = 'linear-gradient(90deg, #ff5252, #ff8a80)';
-            } else if (percentage < 50) {
-                energyFill.style.background = 'linear-gradient(90deg, #ffd740, #ffecb3)';
-            } else {
-                energyFill.style.background = 'linear-gradient(90deg, #4CAF50, #8BC34A)';
-            }
+        if (percentage < 20) {
+            energyFill.style.background = 'linear-gradient(90deg, #ff5252, #ff8a80)';
+        } else if (percentage < 50) {
+            energyFill.style.background = 'linear-gradient(90deg, #ffd740, #ffecb3)';
+        } else {
+            energyFill.style.background = 'linear-gradient(90deg, #4CAF50, #8BC34A)';
+        }
       
-            energyText.innerText = `${formatCycles(balance)} cycles`;
-            rawBalance.innerText = `Total: ${formatCycles(balance)} cycles`;
-            percentageElement.innerText = `${percentage.toFixed(1)}% of max capacity`;
-       
+        energyText.innerText = `${formatCycles(balance)} cycles`;
+        rawBalance.innerText = `Total: ${formatCycles(balance)} cycles`;
+        percentageElement.innerText = `${percentage.toFixed(1)}% of max capacity`;
     } catch (error) {
         console.error('Error fetching balance:', error);
     }
 }
 
-export { updateBalance };
-
 function openRefuelWindow() {
-
     const width = 400;
     const height = 700;
     const left = window.screen.width / 2 - width / 2;
@@ -69,6 +66,34 @@ function openRefuelWindow() {
     window.open(refuelUrl, 'Refuel Window', windowFeatures);
 }
 
-document.getElementById('refuel-button')?.addEventListener('click', openRefuelWindow);
+function initializeComputeFuel() {
+    const container = document.createElement('div');
+    container.innerHTML = `
+        <div class="basic-container">
+            <h3>Compute fuel</h3>
+            <div class="energy-bar">
+                <div class="energy-fill" id="energy-fill"></div>
+                <div class="energy-text" id="energy-text"></div>
+            </div>
+            <div class="energy-details">
+                <span id="raw-balance">⚡</span>
+                <span id="percentage">🔋</span>
+            </div>
+            <button id="refuel-button" class="btn">Refuel</button>
+        </div>
+    `;
+    
+    // Add event listener for refuel button
+    const refuelButton = container.querySelector('#refuel-button');
+    if (refuelButton) {
+        refuelButton.addEventListener('click', openRefuelWindow);
+    }
 
-export { openRefuelWindow };
+    // Update the balance immediately and start periodic updates
+    updateBalance();
+    setInterval(updateBalance, 60000); // Update every minute
+
+    return container;
+}
+
+export { initializeComputeFuel, updateBalance };

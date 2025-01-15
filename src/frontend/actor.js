@@ -40,6 +40,8 @@ listFiles: IDL.Func(
   ["query"]
 ),
 
+deleteFile: IDL.Func([IDL.Text], [IDL.Bool], []),
+
 });
 
 

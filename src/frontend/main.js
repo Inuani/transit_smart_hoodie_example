@@ -1,6 +1,6 @@
 
 import { Auth } from './auth.js';
-import { updateBalance } from './cycles-balance.js';
+import { initializeComputeFuel } from './cycles-balance.js';
 import { loadAudio, initUpload, initTrackPage } from './trackService.js';
 
 const init = async () => {
@@ -9,10 +9,15 @@ const init = async () => {
     await auth.init();
     const isTrackPage = window.location.pathname.includes('track.html');
 
+    // Add compute fuel to pages that need it
+    const computeFuelContainers = document.querySelectorAll('.compute-fuel-container');
+    computeFuelContainers.forEach(container => {
+        container.appendChild(initializeComputeFuel());
+    });
+
     if (isTrackPage) {
         await initTrackPage(auth);
     } else {
-        await updateBalance();
         await loadAudio(auth);
         await initUpload(auth);
     }

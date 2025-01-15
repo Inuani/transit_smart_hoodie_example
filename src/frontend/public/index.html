@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="themes.css">
     <link rel="stylesheet" href="main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-    <title>🥾 Velcro Space Boot 🥾</title>
+    <title>transit record hoodie</title>
     <style>
         .tracks-container {
             margin: 20px 0;
@@ -34,28 +34,7 @@
             background: rgba(0, 0, 0, 0.2);
         }
         
-        .delete-btn {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        .delete-btn:hover {
-            background: #cc0000;
-        }
-        
-        .upload-section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-        }
+       
         
         .file-input-group {
             display: flex;
@@ -69,33 +48,32 @@
             border: 1px solid #ccc;
             background: rgba(255, 255, 255, 0.9);
         }
+
+        .transit {
+            width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: var(--radius-normal);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="basic-container">
         <header class="header">
-            <h1>Smart transit record hoodie</h1>
+            <!-- <h1>1217 transit record hoodie</h1> -->
+            <img class="transit" src="/transit.webp" alt="transit logo">
         </header>
 
-        <p>
-            scan me to listen to exclusive transit record tracks
-        </p>
 
-        <img class="boot-image" src="/velcro_boot.webp" alt="velcro boot">
-        
-        <div class="energy-bar-container">
-            <h3>Compute fuel</h3>
-            <div class="energy-bar">
-                <div class="energy-fill" id="energy-fill"></div>
-                <div class="energy-text" id="energy-text"></div>
-            </div>
-            <div class="energy-details">
-                <span id="raw-balance">⚡</span>
-                <span id="percentage">🔋</span>
-            </div>
-            <button id="refuel-button">Refuel</button>
-        </div>
+        <img class="boot-image" src="/hoodie_transit.webp" alt="hoodie transit">
     </div>
+
+        <div class="compute-fuel-container"></div>
+        
     
     <script src="/bundle.js" type="module"></script>
 </body>

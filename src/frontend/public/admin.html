@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="themes.css">
     <link rel="stylesheet" href="main.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <title>admin dashboard</title>
     <style>
         .tracks-container {
@@ -14,11 +15,12 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
         }
-        
+
         .track-list {
             margin: 15px 0;
         }
-        
+
+
         .track-item {
             display: flex;
             justify-content: space-between;
@@ -28,37 +30,60 @@
             background: rgba(0, 0, 0, 0.1);
             border-radius: 4px;
             cursor: pointer;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        
-        .track-item:hover {
-            background: rgba(0, 0, 0, 0.2);
+
+        /* Add media query for mobile screens */
+        @media screen and (max-width: 600px) {
+            .track-item {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .track-item span {
+                margin-bottom: 10px;
+            }
+
+            .track-item div {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+            }
+
+            .track-item button {
+                flex: 1;
+                max-width: 120px;
+            }
         }
-        
+
         .delete-btn {
-    background: linear-gradient(45deg, #2c2c2c, #404040);
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-family: 'Arial', sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    letter-spacing: 1px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
+            background: linear-gradient(45deg, #2c2c2c, #404040);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
 
-.delete-btn:hover {
-    background: linear-gradient(45deg, #2c2c2c, #404040);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
+        .delete-btn:hover {
+            background: linear-gradient(45deg, #2c2c2c, #404040);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
 
-.delete-btn:active {
-    transform: translateY(0px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+        .delete-btn:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
         .upload-section {
             display: flex;
             flex-direction: column;
@@ -68,14 +93,19 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
         }
-        
+
         .file-input-group {
             display: flex;
-            gap: 10px;
-            align-items: center;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 300px;
+            /* Limit maximum width */
+            margin: 20px 0;
         }
-        
-        #file-title, #file-artist {
+
+        #file-title,
+        #file-artist {
+            width: 100%;
             padding: 8px;
             border-radius: 4px;
             border: 1px solid #ccc;
@@ -83,17 +113,43 @@
         }
 
         .upload-button-container {
-    margin-top: 15px;
-    text-align: right;
-}
+            margin-top: 15px;
+        }
 
-#upload-button {
-    background: linear-gradient(45deg, #ff3366, #ff6b8b);
-    margin-left: auto;
-}
+        #upload-button {
+            background: linear-gradient(45deg, #ff3366, #ff6b8b);
+            min-width: 120px;
+        }
 
+        /* Mobile adjustments */
+        @media screen and (max-width: 600px) {
+            .file-input-group {
+                max-width: 100%;
+                /* Allow full width on mobile */
+                padding: 0 10px;
+            }
+        }
+
+        #audio-container audio {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            display: block;
+        }
+
+        @media screen and (max-width: 600px) {
+            #audio-container {
+                padding: 5px;
+            }
+
+            #audio-container audio {
+                width: 100%;
+                min-width: 250px;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header class="header">
@@ -109,7 +165,6 @@
             <div id="audio-container"></div>
         </div>
 
-        
 
         <div class="basic-container">
             <h3>Upload New Track</h3>
@@ -121,23 +176,13 @@
             <div class="upload-button-container">
                 <button id="upload-button" class="btn">Upload Track</button>
             </div>
-            <div id="upload-progress"></div>
+
         </div>
-        
-        <div class="basic-container">
-            <h3>Compute fuel</h3>
-            <div class="energy-bar">
-                <div class="energy-fill" id="energy-fill"></div>
-                <div class="energy-text" id="energy-text"></div>
-            </div>
-            <div class="energy-details">
-                <span id="raw-balance">⚡</span>
-                <span id="percentage">🔋</span>
-            </div>
-            <button class="btn">Refuel</button>
-        </div>
-    </div>
-    
-    <script src="/bundle.js" type="module"></script>
+
+        <div class="compute-fuel-container"></div>
+
+        <script src="/bundle.js" type="module"></script>
 </body>
+
+
 </html>
