@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="themes.css">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="/themes.css">
+    <link rel="stylesheet" href="/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <title>admin dashboard</title>
     <style>
@@ -99,7 +99,6 @@
             flex-direction: column;
             gap: 15px;
             max-width: 300px;
-            /* Limit maximum width */
             margin: 20px 0;
         }
 
@@ -173,10 +172,11 @@
                 <input type="text" id="file-title" placeholder="Enter track title">
                 <input type="text" id="file-artist" placeholder="Enter artist name">
             </div>
+            <!-- Add this div for upload progress -->
+            <div id="upload-progress"></div>
             <div class="upload-button-container">
                 <button id="upload-button" class="btn">Upload Track</button>
             </div>
-
         </div>
 
         <div class="compute-fuel-container"></div>
