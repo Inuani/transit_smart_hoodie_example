@@ -1,6 +1,28 @@
 
 const CHUNK_SIZE = 2000000;
 
+async function updateTrackButtons(files) {
+    const trackButtons = document.getElementById('track-buttons');
+    if (!trackButtons) {
+        return; // Not on index page
+    }
+
+    // Clear existing buttons
+    trackButtons.innerHTML = '';
+
+    // Create button for each track
+    for (const [title, artist, contentType] of files) {
+        const button = document.createElement('a');
+        button.href = `/track.html?id=${encodeURIComponent(title)}`;
+        button.className = 'track-button';
+        button.innerHTML = `
+            <span class="track-title">${title}</span>
+            <span class="track-artist">${artist}</span>
+        `;
+        trackButtons.appendChild(button);
+    }
+}
+
 export async function uploadFile(file, title, artist, actor, onFinish) {
     const reader = new FileReader();
     const contentType = file.type;
@@ -69,8 +91,9 @@ export async function getFileList(actor) {
 
 export async function loadAudio(auth) {
     const audioContainer = document.getElementById('audio-container');
-    if (!audioContainer) {
-        console.error('Audio container not found');
+    
+    if (!audioContainer && !document.getElementById('track-buttons')) {
+        console.error('Neither audio container nor track buttons found');
         return;
     }
 
@@ -78,6 +101,8 @@ export async function loadAudio(auth) {
     try {
         // Get list of files
         const files = await actor.listFiles();
+
+        await updateTrackButtons(files);
 
         // Clear existing tracks
         audioContainer.innerHTML = '';

@@ -15,35 +15,46 @@
         }
 
         .track-visual {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 30px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            animation: rotate 20s linear infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
+        width: 250px;
+        height: 250px;
+        margin: 0 auto 30px;
+        border-radius: 50%;
+        position: relative;
+        overflow: hidden;
+        animation: rotate 20s linear infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .track-visual::after {
-            content: '1217\A transit\A records';
-            white-space: pre;
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.9);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            line-height: 1.2;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
+    /* Background gradient layer - move to the back */
+    .track-visual::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        z-index: 1;
+    }
+
+    /* Image layer - bring to the front */
+    .track-visual::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('/hoodie_transit.webp');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        mix-blend-mode: normal;
+        opacity: 1;
+        z-index: 2;
+    }
 
         @keyframes rotate {
             from { transform: rotate(0deg); }
@@ -104,8 +115,8 @@
             }
 
             .track-visual {
-                width: 150px;
-                height: 150px;
+                width: 200px;
+                height: 200px;
             }
 
             .track-visual::after {
@@ -134,6 +145,7 @@
 </head>
 <body>
     <div class="basic-container">
+        <a href="/" class="btn" style="text-decoration: none; display: inline-block;">Home</a>
         <div class="track-info">
             <div class="track-visual playing"></div>
             <h1 class="track-title" id="track-title">Loading...</h1>

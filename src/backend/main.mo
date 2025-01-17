@@ -21,16 +21,16 @@ shared ({ caller = creator }) actor class () = this {
   type HttpResponse = Server.HttpResponse;
   type ResponseClass = Server.ResponseClass;
   type ChunkId = fileStorage.ChunkId;
-  // type StoredFile = fileStorage.StoredFile;
-  // type FileChunk = fileStorage.FileChunk;
 
   stable var serializedEntries : Server.SerializedEntries = ([], [], [creator]);
+  var server = Server.Server({ serializedEntries });
+  let assets = server.assets;
+
   stable var scan_count : Nat = 0;
+  stable var cmacs : [Text] = [];
 
   stable let fileStorageState = fileStorage.init();
   let file_storage = fileStorage.FileStorage(fileStorageState);
-
-
 
   public func upload(chunk : [Nat8]) : async () {
     file_storage.upload(chunk);
@@ -62,8 +62,6 @@ shared ({ caller = creator }) actor class () = this {
     file_storage.getStoredFileCount();
   };
 
-  var server = Server.Server({ serializedEntries });
-
   public query ({ caller }) func whoAmI() : async Principal {
     return caller;
   };
@@ -71,21 +69,6 @@ shared ({ caller = creator }) actor class () = this {
   public query func get_cycle_balance() : async Nat {
     return Cycles.balance();
   };
-
-  // server.get(
-  //   "/404",
-  //   func(_ : Request, res : ResponseClass) : async Response {
-  //     res.send({
-  //       status_code = 404;
-  //       headers = [("Content-Type", "text/plain")];
-  //       body = Text.encodeUtf8("Not found");
-  //       streaming_strategy = null;
-  //       cache_strategy = #noCache;
-  //     });
-  //   },
-  // );
-
-  let assets = server.assets;
 
   public query func listAuthorized() : async [Principal] {
     server.entries().2;
@@ -121,8 +104,6 @@ shared ({ caller = creator }) actor class () = this {
   ) : async () {
     server.store({ caller; arg });
   };
-
-  stable var cmacs : [Text] = [];
 
   public shared ({ caller }) func update_cmacs(new_cmacs : [Text]) : async () {
     assert (caller == creator);
