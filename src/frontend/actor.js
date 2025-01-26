@@ -42,6 +42,19 @@ listFiles: IDL.Func(
 
 deleteFile: IDL.Func([IDL.Text], [IDL.Bool], []),
 
+getLevelingStats: IDL.Func([], [IDL.Record({
+  current_xp: IDL.Nat,
+  current_level: IDL.Nat,
+  total_plays: IDL.Nat,
+  xp_to_next_level: IDL.Nat,
+  current_level_xp: IDL.Nat,
+  total_xp_current_level: IDL.Nat,
+  current_level_progress: IDL.Nat
+})], ["query"]),
+
+
+trackPlay: IDL.Func([], [], []),
+
 });
 
 

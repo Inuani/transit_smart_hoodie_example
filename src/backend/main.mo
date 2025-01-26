@@ -13,6 +13,7 @@ import fileStorage "file_storage";
 import Blob "mo:base/Blob";
 import Result "mo:base/Result";
 import U "utils";
+import Leveling "leveling";
 
 shared ({ caller = creator }) actor class () = this {
   type Request = Server.Request;
@@ -29,15 +30,47 @@ shared ({ caller = creator }) actor class () = this {
   stable var scan_count : Nat = 0;
   stable var cmacs : [Text] = [];
 
+  stable var levelingStats : Leveling.Stats = {
+    var current_xp = 0;
+    var current_level = 0;
+    var total_plays = 0;
+  };
+
+  let leveling = Leveling.Leveling(levelingStats);
+
   stable let fileStorageState = fileStorage.init();
   let file_storage = fileStorage.FileStorage(fileStorageState);
+
+  public shared func trackPlay() : async () {
+    leveling.awardPlayXP();
+  };
+
+  public shared func awardUploadXp() : async () {
+    leveling.awardUploadXP();
+  };
+
+
+
+  public query func getLevelingStats() : async Leveling.StatsResponse {
+    leveling.getStats()
+  };
 
   public func upload(chunk : [Nat8]) : async () {
     file_storage.upload(chunk);
   };
 
   public func uploadFinalize(title : Text, artist : Text, contentType : Text) : async Result.Result<Text, Text> {
-    file_storage.uploadFinalize(title, artist, contentType);
+    let uploadResult = file_storage.uploadFinalize(title, artist, contentType);
+
+    switch (uploadResult) {
+      case (#ok(msg)) {
+        leveling.awardUploadXP();
+        #ok(msg);
+      };
+      case (#err(msg)) {
+        #err(msg);
+      };
+    };
   };
 
   public query func getFileChunk(title : Text, chunkId : ChunkId) : async ?{

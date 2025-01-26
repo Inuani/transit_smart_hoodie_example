@@ -52,7 +52,7 @@
 
         .transit {
             width: 100%;
-            max-width: 400px;
+            max-width: 200px;
             height: auto;
             border-radius: var(--radius-normal);
             display: block;
@@ -60,7 +60,33 @@
             margin-right: auto;
         }
 
-        .tracks-section {
+        .image-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 40px; /* Add padding to accommodate larger background */
+}
+
+.wings-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 110%; /* Make it 20% larger */
+    height: 110%;
+    transform: translate(-50%, -50%) scale(1.1); /* Center it and scale up */
+    object-fit: contain;
+    z-index: 1;
+}
+
+.boot-image {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: auto;
+}
+
+        /* .tracks-section {
             margin-top: 2rem;
             text-align: center;
         }
@@ -118,7 +144,7 @@
                 min-width: 150px;
                 padding: 0.8rem 1.2rem;
             }
-        }
+        } */
     </style>
 </head>
 
@@ -127,15 +153,21 @@
         <div class="basic-container">
             <header class="header">
                 <!-- <h1>1217 transit record hoodie</h1> -->
-                <img class="transit" src="/transit.webp" alt="transit logo">
+                
             </header>
 
-            <img class="boot-image" src="/hoodie_transit.webp" alt="hoodie transit">
+            <div class="image-container">
+                <img class="wings-image" src="/wings level 5.png" alt="level 1 wings">
+                <img class="boot-image" src="/hoodie_transit.webp" alt="hoodie transit">
+            </div>
+            <!-- <img class="boot-image" src="/hoodie_transit.webp" alt="hoodie transit"> -->
 
-            <div class="tracks-section">
+            <!-- <div class="tracks-section">
                 <h2>Available Tracks</h2>
                 <div id="track-buttons" class="track-buttons"></div>
-            </div>
+            </div> -->
+            <div class="level-container"></div>
+            <img class="transit" src="/logo.webp" alt="transit records logo">
         </div>
 
         <div class="compute-fuel-container"></div>
