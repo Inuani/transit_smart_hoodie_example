@@ -89,69 +89,11 @@ export async function getFileList(actor) {
     }
 }
 
-// export async function loadAudio(auth) {
-//     const audioContainer = document.getElementById('audio-container');
-    
-//     if (!audioContainer && !document.getElementById('track-buttons')) {
-//         console.error('Neither audio container nor track buttons found');
-//         return;
-//     }
-
-//     const actor = auth.getCurrentActor();
-//     try {
-//         // Get list of files
-//         const files = await actor.listFiles();
-
-//         await updateTrackButtons(files);
-
-//         // Clear existing tracks
-//         audioContainer.innerHTML = '';
-
-//         // Create track list
-//         const trackList = document.getElementById('track-list');
-//         trackList.innerHTML = '';
-
-//         for (const [title, artist, contentType] of files) {
-//             const trackItem = document.createElement('div');
-//             trackItem.className = 'track-item';
-
-//             // Add title and play button
-//             trackItem.innerHTML = `
-//                  <span>${title} - ${artist}</span>
-//                 <div>
-//                     <button class="btn">Play</button>
-//                     <button class="delete-btn">Delete</button>
-//                 </div>
-//             `;
-
-//             // Add click handler for playing
-//             trackItem.querySelector('.btn').addEventListener('click', async () => {
-//                 await loadSingleTrack(actor, title, audioContainer);
-//             });
-
-//             // Add click handler for deletion
-//             trackItem.querySelector('.delete-btn').addEventListener('click', async () => {
-//                 if (confirm(`Are you sure you want to delete "${title}"?`)) {
-//                     await actor.deleteFile(title);
-//                     await loadAudio(auth); // Refresh the list
-//                 }
-//             });
-
-//             trackList.appendChild(trackItem);
-//         }
-//     } catch (error) {
-//         console.error('Error loading audio files:', error);
-//     }
-// }
-
 export async function loadAudio(auth) {
-    const isAdminPage = window.location.pathname.includes('admin.html');
     const audioContainer = document.getElementById('audio-container');
-    const trackButtons = document.getElementById('track-buttons');
     
-    // If neither container exists, we can't proceed
-    if (!audioContainer && !trackButtons) {
-        console.error('No valid container found for audio content');
+    if (!audioContainer && !document.getElementById('track-buttons')) {
+        console.error('Neither audio container nor track buttons found');
         return;
     }
 
@@ -160,55 +102,113 @@ export async function loadAudio(auth) {
         // Get list of files
         const files = await actor.listFiles();
 
-        // Update track buttons if we're on the index page
-        if (trackButtons) {
-            await updateTrackButtons(files);
-        }
+        await updateTrackButtons(files);
 
-        // Update admin interface if we're on the admin page
-        if (isAdminPage && audioContainer) {
-            // Clear existing tracks
-            audioContainer.innerHTML = '';
+        // Clear existing tracks
+        audioContainer.innerHTML = '';
 
-            // Create track list
-            const trackList = document.getElementById('track-list');
-            if (trackList) {
-                trackList.innerHTML = '';
+        // Create track list
+        const trackList = document.getElementById('track-list');
+        trackList.innerHTML = '';
 
-                for (const [title, artist, contentType] of files) {
-                    const trackItem = document.createElement('div');
-                    trackItem.className = 'track-item';
+        for (const [title, artist, contentType] of files) {
+            const trackItem = document.createElement('div');
+            trackItem.className = 'track-item';
 
-                    // Add title and play button
-                    trackItem.innerHTML = `
-                        <span>${title} - ${artist}</span>
-                        <div>
-                            <button class="btn">Play</button>
-                            <button class="delete-btn">Delete</button>
-                        </div>
-                    `;
+            // Add title and play button
+            trackItem.innerHTML = `
+                 <span>${title} - ${artist}</span>
+                <div>
+                    <button class="btn">Play</button>
+                    <button class="delete-btn">Delete</button>
+                </div>
+            `;
 
-                    // Add click handler for playing
-                    trackItem.querySelector('.btn').addEventListener('click', async () => {
-                        await loadSingleTrack(actor, title, audioContainer);
-                    });
+            // Add click handler for playing
+            trackItem.querySelector('.btn').addEventListener('click', async () => {
+                await loadSingleTrack(actor, title, audioContainer);
+            });
 
-                    // Add click handler for deletion
-                    trackItem.querySelector('.delete-btn').addEventListener('click', async () => {
-                        if (confirm(`Are you sure you want to delete "${title}"?`)) {
-                            await actor.deleteFile(title);
-                            await loadAudio(auth); // Refresh the list
-                        }
-                    });
-
-                    trackList.appendChild(trackItem);
+            // Add click handler for deletion
+            trackItem.querySelector('.delete-btn').addEventListener('click', async () => {
+                if (confirm(`Are you sure you want to delete "${title}"?`)) {
+                    await actor.deleteFile(title);
+                    await loadAudio(auth); // Refresh the list
                 }
-            }
+            });
+
+            trackList.appendChild(trackItem);
         }
     } catch (error) {
         console.error('Error loading audio files:', error);
     }
 }
+
+// export async function loadAudio(auth) {
+//     const isAdminPage = window.location.pathname.includes('admin.html');
+//     const audioContainer = document.getElementById('audio-container');
+//     const trackButtons = document.getElementById('track-buttons');
+    
+//     // If neither container exists, we can't proceed
+//     if (!audioContainer && !trackButtons) {
+//         console.error('No valid container found for audio content');
+//         return;
+//     }
+
+//     const actor = auth.getCurrentActor();
+//     try {
+//         // Get list of files
+//         const files = await actor.listFiles();
+
+//         // Update track buttons if we're on the index page
+//         if (trackButtons) {
+//             await updateTrackButtons(files);
+//         }
+
+//         // Update admin interface if we're on the admin page
+//         if (isAdminPage && audioContainer) {
+//             // Clear existing tracks
+//             audioContainer.innerHTML = '';
+
+//             // Create track list
+//             const trackList = document.getElementById('track-list');
+//             if (trackList) {
+//                 trackList.innerHTML = '';
+
+//                 for (const [title, artist, contentType] of files) {
+//                     const trackItem = document.createElement('div');
+//                     trackItem.className = 'track-item';
+
+//                     // Add title and play button
+//                     trackItem.innerHTML = `
+//                         <span>${title} - ${artist}</span>
+//                         <div>
+//                             <button class="btn">Play</button>
+//                             <button class="delete-btn">Delete</button>
+//                         </div>
+//                     `;
+
+//                     // Add click handler for playing
+//                     trackItem.querySelector('.btn').addEventListener('click', async () => {
+//                         await loadSingleTrack(actor, title, audioContainer);
+//                     });
+
+//                     // Add click handler for deletion
+//                     trackItem.querySelector('.delete-btn').addEventListener('click', async () => {
+//                         if (confirm(`Are you sure you want to delete "${title}"?`)) {
+//                             await actor.deleteFile(title);
+//                             await loadAudio(auth); // Refresh the list
+//                         }
+//                     });
+
+//                     trackList.appendChild(trackItem);
+//                 }
+//             }
+//         }
+//     } catch (error) {
+//         console.error('Error loading audio files:', error);
+//     }
+// }
 
 export async function loadSingleTrack(actor, title, container) {
     try {

@@ -12,12 +12,13 @@ def convert_to_candid(data):
     return '(vec {' + ';'.join(quoted_strings) + '})'
 
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: ./batch_cmacs.py <json_file> <canister_name>")
+    if len(sys.argv) != 4:
+        print("Usage: python3 batch_cmacs.py <cmacs_file> <canister_name> <page_path>")
         sys.exit(1)
 
     json_file = sys.argv[1]
     canister_name = sys.argv[2]
+    page_path = sys.argv[3]
     batch_size = 1500  # Safe batch size for terminal
 
     # Read the full JSON file
@@ -36,7 +37,7 @@ def main():
         candid_data = convert_to_candid(batch)
         
         # Call the canister with the batch
-        cmd = f"dfx canister call --ic {canister_name} append_cmacs '{candid_data}'"
+        cmd = f'dfx canister call {canister_name} append_route_cmacs \'("{page_path}", {candid_data})\''
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         
         if result.returncode != 0:

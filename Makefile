@@ -8,7 +8,6 @@ include .env
 
 # npx repomix --ignore ".mops/,.dfx/,.vscode,node_module/,.gitignore,src/frontend/public/bundle.js,src/frontend/public/edge.html"                                             
 
-
 # dfx canister call --ic velcro_boot invalidate_cache
 
 # dfx canister --ic deposit-cycles 1000000000000 velcro_boot

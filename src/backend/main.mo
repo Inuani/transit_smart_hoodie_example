@@ -5,13 +5,17 @@ import Assets "mo:assets";
 import T "mo:assets/Types";
 import Cycles "mo:base/ExperimentalCycles";
 import Array "mo:base/Array";
-import Debug "mo:base/Debug";
+// import Debug "mo:base/Debug";
 import Principal "mo:base/Principal";
-import Scan "scan";
+// import Scan "scan";
+import Routes "routes";
 import fileStorage "file_storage";
 
 import Blob "mo:base/Blob";
 import Result "mo:base/Result";
+import Iter "mo:base/Iter";
+import Debug "mo:base/Debug";
+import Bool "mo:base/Bool";
 import U "utils";
 import Leveling "leveling";
 
@@ -27,8 +31,8 @@ shared ({ caller = creator }) actor class () = this {
   var server = Server.Server({ serializedEntries });
   let assets = server.assets;
 
-  stable var scan_count : Nat = 0;
-  stable var cmacs : [Text] = [];
+  // stable var scan_count : Nat = 0;
+  // stable var cmacs : [Text] = [];
 
   stable var levelingStats : Leveling.Stats = {
     var current_xp = 0;
@@ -41,13 +45,39 @@ shared ({ caller = creator }) actor class () = this {
   stable let fileStorageState = fileStorage.init();
   let file_storage = fileStorage.FileStorage(fileStorageState);
 
+  stable let routesState = Routes.init();
+  let routes_storage = Routes.RoutesStorage(routesState);
+
+  public shared ({ caller }) func add_protected_route(path : Text) : async () {
+    assert (caller == creator);
+    ignore routes_storage.addProtectedRoute(path);
+  };
+
+  public shared ({ caller }) func update_route_cmacs(path : Text, new_cmacs : [Text]) : async () {
+    assert (caller == creator);
+    ignore routes_storage.updateRouteCmacs(path, new_cmacs);
+  };
+
+  public shared ({ caller }) func append_route_cmacs(path : Text, new_cmacs : [Text]) : async () {
+    assert (caller == creator);
+    ignore routes_storage.appendRouteCmacs(path, new_cmacs);
+  };
+
+  public query func get_route_protection(path : Text) : async ?Routes.ProtectedRoute {
+    routes_storage.getRoute(path);
+  };
+
+  public query func get_route_cmacs(path : Text) : async [Text] {
+    routes_storage.getRouteCmacs(path);
+  };
+
   public shared func trackPlay() : async () {
     leveling.awardPlayXP();
   };
 
-  public shared func awardUploadXp() : async () {
-    leveling.awardUploadXP();
-  };
+  // public shared func awardUploadXp() : async () {
+  //   leveling.awardUploadXP();
+  // };
 
 
 
@@ -138,19 +168,19 @@ shared ({ caller = creator }) actor class () = this {
     server.store({ caller; arg });
   };
 
-  public shared ({ caller }) func update_cmacs(new_cmacs : [Text]) : async () {
-    assert (caller == creator);
-    cmacs := new_cmacs;
-  };
+  // public shared ({ caller }) func update_cmacs(new_cmacs : [Text]) : async () {
+  //   assert (caller == creator);
+  //   cmacs := new_cmacs;
+  // };
 
-  public shared ({ caller }) func append_cmacs(new_cmacs : [Text]) : async () {
-    assert (caller == creator);
-    cmacs := Array.append(cmacs, new_cmacs);
-  };
+  // public shared ({ caller }) func append_cmacs(new_cmacs : [Text]) : async () {
+  //   assert (caller == creator);
+  //   cmacs := Array.append(cmacs, new_cmacs);
+  // };
 
-  public query func get_cmacs() : async [Text] {
-    cmacs;
-  };
+  // public query func get_cmacs() : async [Text] {
+  //   cmacs;
+  // };
 
   public query func http_request(req : HttpRequest) : async HttpResponse {
 
@@ -161,7 +191,18 @@ shared ({ caller = creator }) actor class () = this {
       headers = req.headers;
     };
 
-    if (Text.contains(request.url, #text "admin.html") or Text.contains(request.url, #text "track.html")) {
+    // if (Text.contains(request.url, #text "admin.html") or Text.contains(request.url, #text "track.html")) {
+    //   return {
+    //     status_code = 426;
+    //     headers = [];
+    //     body = Blob.fromArray([]);
+    //     streaming_strategy = null;
+    //     upgrade = ?true;
+    //   };
+    // };
+
+
+   if (routes_storage.isProtectedRoute(request.url)) {
       return {
         status_code = 426;
         headers = [];
@@ -184,7 +225,7 @@ shared ({ caller = creator }) actor class () = this {
       headers = req.headers;
     };
 
-    Debug.print(request.url);
+    // Debug.print(request.url);
 
     // if (Text.contains(request.url, #text "admin.html")) {
     //   let counter = Scan.scan(cmacs, req.url, scan_count);
@@ -201,6 +242,48 @@ shared ({ caller = creator }) actor class () = this {
     //     };
     //     return await server.http_request_update(new_request);
     // };
+
+
+     // Check each protected route
+    let routes_array = routes_storage.listProtectedRoutes();
+    for ((path, protection) in routes_array.vals()) {
+      if (Text.contains(request.url, #text path)) {
+        let hasAccess = routes_storage.verifyRouteAccess(path, req.url);
+
+         let urlParts = Iter.toArray(Text.split(req.url, #char '?'));
+            var trackId = "";
+            
+            if (urlParts.size() > 1) {
+                let queryParams = Iter.toArray(Text.split(urlParts[1], #char '&'));
+                for (param in queryParams.vals()) {
+                    let keyValue = Iter.toArray(Text.split(param, #char '='));
+                    if (keyValue.size() == 2 and keyValue[0] == "id") {
+                        trackId := keyValue[1];
+                    };
+                };
+            };
+            
+            // Debug.print(Bool.toText(hasAccess));
+         let new_request = {
+                url = if (hasAccess) {
+                    // If access is granted, maintain the track ID in the redirected URL
+                    if (trackId == "") {
+                        "/" # path
+                    } else {
+                        "/" # path # "?id=" # trackId
+                    }
+                } else {
+                    "/edge.html"
+                };
+                method = request.method;
+                body = request.body;
+                headers = request.headers;
+            };
+            
+            return await server.http_request_update(new_request);
+      };
+    };
+
     await server.http_request_update(request);
   };
 
