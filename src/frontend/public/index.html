@@ -60,33 +60,78 @@
             margin-right: auto;
         }
 
+        /* .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 40px;
+        } */
+
+        .wings-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 130%;
+            /* Make it 20% larger */
+            height: 130%;
+            transform: translate(-50%, -50%) scale(1.1);
+            /* Center it and scale up */
+            object-fit: contain;
+            z-index: 1;
+        }
+
+
         .image-container {
-    position: relative;
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 40px; /* Add padding to accommodate larger background */
-}
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px;
+        }
 
-.wings-image {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 110%; /* Make it 20% larger */
-    height: 110%;
-    transform: translate(-50%, -50%) scale(1.1); /* Center it and scale up */
-    object-fit: contain;
-    z-index: 1;
-}
+        .track-image, .logo-hoodie-pic {
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 15px;
+        }
 
-.boot-image {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    height: auto;
-}
+        .image-container .hoodie-image.hoodie-front {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: opacity 0.3s ease;
+        }
 
-         .tracks-section {
+
+        .image-container .hoodie-image.hoodie-back {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            width: calc(100% - 80px);
+            max-width: calc(700px - 80px);
+            height: auto;
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-container:hover .hoodie-front {
+            opacity: 0;
+        }
+
+        .image-container:hover .hoodie-back {
+            opacity: 1;
+        }
+
+        .tracks-section {
             margin-top: 2rem;
             text-align: center;
         }
@@ -144,37 +189,40 @@
                 min-width: 150px;
                 padding: 0.8rem 1.2rem;
             }
-        } 
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        
+
         <div class="basic-container">
             <header class="header">
                 <!-- <h1>1217 transit record hoodie</h1> -->
-                
+
             </header>
 
             <div class="image-container">
-                <!-- <img class="wings-image" src="/wings level 5.png" alt="level wings"> -->
-                <img class="boot-image" src="/hoodie_transit.webp" alt="hoodie transit">
+                <img class="wings-image" src="/wings level 5.webp" alt="level wings">
+                <img class="hoodie-image hoodie-front" src="/hoodie_transit.webp" alt="hoodie transit">
+                <img class="hoodie-image hoodie-back" src="/hoodie_back.webp" alt="hoodie transit back">
             </div>
-            <!-- <img class="boot-image" src="/hoodie_transit.webp" alt="hoodie transit"> -->
-
+               
+      
             <div class="tracks-section">
                 <h2>Available Tracks</h2>
                 <div id="track-buttons" class="track-buttons"></div>
             </div>
             <div class="level-container"></div>
-            
-           
+            <img class="track-image" src="/3.webp" alt="track hoodie photo" loading="lazy">
+            <img class="logo-hoodie-pic" src="/4.webp" alt="logo hoodie photo" loading="lazy">
+
+
         </div>
         <img class="transit" src="/logo.webp" alt="transit records logo">
 
         <div class="compute-fuel-container"></div>
-    
+
 
 
         <script src="/bundle.js" type="module"></script>

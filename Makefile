@@ -6,7 +6,7 @@ include .env
 
 #icx-asset --replica http://127.0.0.1:4943 --pem ~/.config/dfx/identity/raygen/identity.pem upload $(CANISTER_ID_VELCRO_BOOT) /index.html=src/frontend/public/index.html
 
-# npx repomix --ignore ".mops/,.dfx/,.vscode,node_module/,.gitignore,src/frontend/public/bundle.js,src/frontend/public/edge.html"                                             
+# npx repomix --ignore ".mops/,.dfx/,.vscode,node_module/,.gitignore,src/frontend/public/bundle.js,src/frontend/public/edge.html,ntag424_programmer.py,setup_route.py,card_types.py,ufr-lib/,scripts/,cmacs.json"
 
 # dfx canister call --ic velcro_boot invalidate_cache
 
@@ -35,6 +35,9 @@ all:
 ic:
 	dfx deploy --ic
 	dfx canister call --ic $(CANISTER_ID_$(shell echo $(CANISTER_NAME) | tr '[:lower:]' '[:upper:]')) invalidate_cache
+
+invalidate_cache:
+	dfx canister call $(CANISTER_NAME) invalidate_cache
 
 url:
 	$(OPEN_CMD) http://$(CANISTER_ID_$(shell echo $(CANISTER_NAME) | tr '[:lower:]' '[:upper:]')).localhost:4943/

@@ -28,7 +28,7 @@ async function updateLevelDisplay() {
             // Calculate total XP needed for this level (current XP + remaining XP)
             const totalXpNeeded = currentLevelXp + xpToNext;
             xpProgress.innerHTML = `⭐ XP: ${currentLevelXp}/${totalXpNeeded}`;
-            playsCount.innerHTML = `🎵 Total Plays: ${totalPlays}`;
+            playsCount.innerHTML = `🎵 Total Scans: ${totalPlays}`;
         }
     } catch (error) {
         console.error('Error updating level:', error);

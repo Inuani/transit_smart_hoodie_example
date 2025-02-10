@@ -1,4 +1,3 @@
-// file_storage.mo
 import Text "mo:base/Text";
 import Array "mo:base/Array";
 import HashMap "mo:base/HashMap";
@@ -7,7 +6,6 @@ import Iter "mo:base/Iter";
 import Buffer "mo:base/Buffer";
 import Nat "mo:base/Nat";
 import Option "mo:base/Option";
-// import T "types";
 
 module {
 

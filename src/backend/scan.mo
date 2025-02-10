@@ -6,7 +6,6 @@ import Char "mo:base/Char";
 import Nat8 "mo:base/Nat8";
 import Nat32 "mo:base/Nat32";
 import Sha "sha";
-// import Debug "mo:base/Debug";
 
 
 module {
@@ -59,9 +58,6 @@ module {
 
         let queries = Iter.toArray(Text.split(full_query[1], #char '&'));
 
-        // if (queries.size() != 3) {
-        //     return 0;
-        // };
 
         if (queries.size() != 3 and queries.size() != 4) {
              return 0;

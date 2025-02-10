@@ -37,7 +37,7 @@ def main():
         candid_data = convert_to_candid(batch)
         
         # Call the canister with the batch
-        cmd = f'dfx canister call {canister_name} append_route_cmacs \'("{page_path}", {candid_data})\''
+        cmd = f'dfx canister call --ic {canister_name} append_route_cmacs \'("{page_path}", {candid_data})\''
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         
         if result.returncode != 0:

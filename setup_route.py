@@ -42,7 +42,8 @@ def setup_route_and_program(canister_id: str, page: str, params: str = None, use
         print(f"Using canister name from dfx.json: {canister_name}")
 
         # Form the URI for the card
-        uri = f"http://{canister_id}.localhost:4943/{page}"
+        # uri = f"http://{canister_id}.localhost:4943/{page}"
+        uri = f"https://geon3-viaaa-aaaak-qtt5a-cai.raw.icp0.io/{page}"
         print(f"Using URI: {uri}")
 
         # Start card programming following ntag424_programmer.py logic
@@ -146,28 +147,39 @@ def setup_route_and_program(canister_id: str, page: str, params: str = None, use
             print(f"Master key changed successfully to: {new_key_str}")
 
         # Now setup the protected route using the obtained UID
-        cmd = f'python3 scripts/hashed_cmacs.py -k 00000000000000000000000000000000 -u {card_uid} -c 30 -o cmacs.json'
+        cmd = f'python3 scripts/hashed_cmacs.py -k 00000000000000000000000000000000 -u {card_uid} -c 5000 -o cmacs.json'
         exit_code, stdout, stderr = run_command(cmd)
         if exit_code != 0:
             print(f"Error generating CMACs: {stderr}")
             return False
         print("Generated CMACs successfully")
 
-        cmd = f'dfx canister call {canister_name} add_protected_route \'("{page}")\''
+
+        route_path = page
+        track_id = None
+        if params and 'id=' in params:
+            track_id = params.split('id=')[1]
+            route_path = f"{page}/{track_id}"  # This creates paths like "track.html/HS4"
+
+        # Add the protected route
+        cmd = f'dfx canister call --ic {canister_name} add_protected_route \'("{route_path}")\''
+
+        # cmd = f'dfx canister call {canister_name} add_protected_route \'("{page}")\''
         exit_code, stdout, stderr = run_command(cmd)
         if exit_code != 0:
             print(f"Error adding protected route: {stderr}")
             return False
         print("Added protected route successfully")
 
-        cmd = f'python3 scripts/batch_cmacs.py cmacs.json {canister_name} {page}'
+        cmd = f'python3 scripts/batch_cmacs.py cmacs.json {canister_name} {route_path}'
+        # cmd = f'python3 scripts/batch_cmacs.py cmacs.json {canister_name} {page}'
         exit_code, stdout, stderr = run_command(cmd)
         if exit_code != 0:
             print(f"Error uploading CMACs: {stderr}")
             return False
         print("Uploaded CMACs successfully")
 
-        cmd = f'dfx canister call {canister_name} invalidate_cache'
+        cmd = f'dfx canister call --ic {canister_name} invalidate_cache'
         exit_code, stdout, stderr = run_command(cmd)
         if exit_code != 0:
             print(f"Error invalidating cache: {stderr}")
