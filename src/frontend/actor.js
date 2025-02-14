@@ -55,6 +55,66 @@ getLevelingStats: IDL.Func([], [IDL.Record({
 
 trackPlay: IDL.Func([], [], []),
 
+addSession: IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
+    
+    removeSession: IDL.Func([IDL.Nat], [IDL.Bool], []),
+    
+    getSessionsByDay: IDL.Func([], [
+        IDL.Vec(IDL.Tuple(
+            IDL.Text,  // day
+            IDL.Vec(IDL.Record({   // sessions
+                id: IDL.Nat,
+                day: IDL.Text,
+                time: IDL.Text,
+                isEnabled: IDL.Bool
+            }))
+        ))
+    ], ["query"]),
+    
+    makeBooking: IDL.Func([
+        IDL.Nat,  // sessionId
+        IDL.Record({  // UserInfo
+            name: IDL.Text,
+            phone: IDL.Text
+        })
+    ], [IDL.Bool], []),
+    
+    cancelBooking: IDL.Func([IDL.Text], [IDL.Bool], []),
+    
+    getUserBooking: IDL.Func([IDL.Text], [
+        IDL.Opt(IDL.Tuple(
+            IDL.Record({  // Booking
+                sessionId: IDL.Nat,
+                user: IDL.Record({
+                    name: IDL.Text,
+                    phone: IDL.Text
+                })
+            }),
+            IDL.Record({  // Session
+                id: IDL.Nat,
+                day: IDL.Text,
+                time: IDL.Text,
+                isEnabled: IDL.Bool
+            })
+        ))
+    ], ["query"]),
+    
+    isSessionBooked: IDL.Func([IDL.Nat], [IDL.Bool], ["query"]),
+    
+    resetAllBookings: IDL.Func([], [], []),
+
+    getSessionBooking: IDL.Func(
+      [IDL.Nat], // sessionId
+      [IDL.Opt(IDL.Record({
+          user: IDL.Record({
+              name: IDL.Text,
+              phone: IDL.Text
+          }),
+          sessionId: IDL.Nat
+      }))],
+      ["query"]
+  )
+
 });
 
 

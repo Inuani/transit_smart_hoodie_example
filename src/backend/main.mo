@@ -15,6 +15,7 @@ import Debug "mo:base/Debug";
 import Bool "mo:base/Bool";
 import U "utils";
 import Leveling "leveling";
+import BookingSystem "bookings";
 
 shared ({ caller = creator }) actor class () = this {
   type Request = Server.Request;
@@ -68,13 +69,51 @@ shared ({ caller = creator }) actor class () = this {
     routes_storage.getRouteCmacs(path);
   };
 
-  // public shared func trackPlay() : async () {
-  //   leveling.awardPlayXP();
-  // };
 
-  // public shared func awardUploadXp() : async () {
-  //   leveling.awardUploadXP();
-  // };
+   stable let bookingState = BookingSystem.init();
+    let booking_system = BookingSystem.BookingSystem(bookingState);
+
+    // Session Management
+    public shared({ caller }) func addSession(day: Text, time: Text) : async Nat {
+        // assert(caller == creator);
+        booking_system.addSession(day, time)
+    };
+
+    public shared({ caller }) func removeSession(id: Nat) : async Bool {
+        // assert(caller == creator);
+        booking_system.removeSession(id)
+    };
+
+    public query func getSessionsByDay() : async [(Text, [BookingSystem.Session])] {
+        booking_system.getSessionsByDay()
+    };
+
+    // Booking Management
+    public shared func makeBooking(sessionId: Nat, user: BookingSystem.UserInfo) : async Bool {
+        booking_system.makeBooking(sessionId, user)
+    };
+
+    public shared func cancelBooking(phone: Text) : async Bool {
+        booking_system.cancelBooking(phone)
+    };
+
+    public query func getUserBooking(phone: Text) : async ?(BookingSystem.Booking, BookingSystem.Session) {
+        booking_system.getUserBooking(phone)
+    };
+
+    public query func isSessionBooked(sessionId: Nat) : async Bool {
+        booking_system.isSessionBooked(sessionId)
+    };
+
+    public shared({ caller }) func resetAllBookings() : async () {
+        // assert(caller == creator);
+        booking_system.resetAllBookings()
+    };
+
+  public query func getSessionBooking(sessionId: Nat) : async ?BookingSystem.Booking {
+    booking_system.getSessionBooking(sessionId)
+};
+     
 
 
 

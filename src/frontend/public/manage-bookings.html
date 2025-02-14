@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/themes.css">
+    <link rel="stylesheet" href="/main.css">
+    <title>Manage Bookings</title>
+    <style>
+        .admin-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .session-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .session-form input, .session-form select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .sessions-list {
+            margin-top: 20px;
+        }
+
+        .session-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .booking-info {
+            background: rgba(255, 51, 102, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .action-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(45deg, #ff3366, #ff4f4f);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.3);
+        }
+
+        .section-title {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .loading {
+            animation: spinner 1s linear infinite;
+        }
+
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media screen and (max-width: 600px) {
+            .session-form {
+                flex-direction: column;
+            }
+
+            .session-item {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .session-item button {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="basic-container">
+            <header class="header">
+                <h1>Manage Bookings</h1>
+            </header>
+
+            <!-- Add New Session Section -->
+            <div class="admin-section">
+                <h2 class="section-title">Add New Session</h2>
+                <div class="session-form">
+                    <select id="day-select">
+                        <option value="lundi">Lundi</option>
+                        <option value="mardi">Mardi</option>
+                        <option value="mercredi">Mercredi</option>
+                        <option value="jeudi">Jeudi</option>
+                        <option value="vendredi">Vendredi</option>
+                        <option value="samedi">Samedi</option>
+                        <option value="dimanche">Dimanche</option>
+                    </select>
+                    <input type="time" id="time-input" required>
+                    <button id="add-session-btn" class="action-btn">Add Session</button>
+                </div>
+            </div>
+
+            <!-- Sessions List Section -->
+            <div class="admin-section">
+                <h2 class="section-title">Current Sessions</h2>
+                <div id="sessions-list" class="sessions-list">
+                    <!-- Sessions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Global Actions Section -->
+            <div class="admin-section">
+                <h2 class="section-title">Global Actions</h2>
+                <button id="reset-bookings-btn" class="action-btn danger">Reset All Bookings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/bundle.js" type="module"></script>
+</body>
+</html>
