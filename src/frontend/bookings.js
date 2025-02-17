@@ -1,293 +1,5 @@
 
-// import { actor } from './actor.js';
 
-// export class BookingService {
-//     constructor() {
-//         this.nameInput = document.getElementById('name');
-//         this.phoneInput = document.getElementById('phone');
-//         this.sessionsContainer = document.getElementById('sessions-container');
-//         this.messageContainer = document.getElementById('message');
-//         this.currentBookingContainer = document.getElementById('current-booking');
-        
-//         // Initialize refresh interval
-//         this.refreshInterval = null;
-        
-//         // Load saved user info
-//         this.loadUserInfo();
-        
-//         // Set up event listeners
-//         this.nameInput.addEventListener('change', () => this.saveUserInfo());
-//         this.phoneInput.addEventListener('change', () => {
-//             this.saveUserInfo();
-//             this.loadSessions(); // Reload sessions when phone changes
-//         });
-
-//         // Initial load
-//         this.loadSessions();
-//         this.loadCurrentBooking();
-        
-//         // Start auto-refresh
-//         this.startAutoRefresh();
-//     }
-
-//     startAutoRefresh() {
-//         // Refresh sessions every 10 seconds
-//         this.refreshInterval = setInterval(() => {
-//             this.loadSessions();
-//         }, 10000);
-//     }
-
-//     stopAutoRefresh() {
-//         if (this.refreshInterval) {
-//             clearInterval(this.refreshInterval);
-//             this.refreshInterval = null;
-//         }
-//     }
-
-//     async loadSessions() {
-//         try {
-//             const sessionsByDay = await actor.getSessionsByDay();
-            
-//             // Get all bookings information
-//             const bookingInfo = await Promise.all(
-//                 sessionsByDay.flatMap(([_, sessions]) =>
-//                     sessions.map(async session => {
-//                         const isBooked = await actor.isSessionBooked(session.id);
-                        
-//                         // Get the user's booking to check if this session is booked by them
-//                         let isUsersBooking = false;
-//                         if (this.phoneInput.value && isBooked) {
-//                             const userBooking = await actor.getUserBooking(this.phoneInput.value);
-//                             console.log("User booking response:", userBooking);
-                            
-//                             if (userBooking) {
-//                               // Check if the booking is nested inside an inner array
-//                               let bookingRecord;
-//                               if (Array.isArray(userBooking[0])) {
-//                                 // userBooking is something like [ [booking, session] ]
-//                                 bookingRecord = userBooking[0][0];
-//                               } else {
-//                                 // Fallback if it's not nested
-//                                 bookingRecord = userBooking[0];
-//                               }
-                              
-//                               console.log("Booking record sessionId:", bookingRecord?.sessionId, typeof bookingRecord?.sessionId);
-//                               console.log("Current session ID:", session.id, typeof session.id);
-                              
-//                               // Convert to string for a safe comparison (or use BigInt conversion)
-//                               isUsersBooking = String(bookingRecord?.sessionId) === String(session.id);
-//                               console.log("isUsersBooking:", isUsersBooking);
-//                             }
-//                           }
-                          
-                          
-                          
-                        
-//                         return {
-//                             sessionId: session.id,
-//                             isBooked,
-//                             isUsersBooking
-//                         };
-//                     })
-//                 )
-//             );
-            
-//             // Create maps for booking status
-//             const bookingStatusMap = new Map();
-//             const userBookingMap = new Map();
-//             let bookingIndex = 0;
-            
-//             sessionsByDay.forEach(([_, sessions]) => {
-//                 sessions.forEach(session => {
-//                     const info = bookingInfo[bookingIndex];
-//                     bookingStatusMap.set(session.id, info.isBooked);
-//                     userBookingMap.set(session.id, info.isUsersBooking);
-//                     bookingIndex++;
-//                 });
-//             });
-            
-//             this.renderSessions(sessionsByDay, bookingStatusMap, userBookingMap);
-//         } catch (error) {
-//             console.error('Error loading sessions:', error);
-//             this.showMessage('Error loading sessions. Please try again.', 'error');
-//         }
-//     }
-
-//     async loadCurrentBooking() {
-//         if (!this.phoneInput.value) return;
-
-//         try {
-//             const bookingOpt = await actor.getUserBooking(this.phoneInput.value);
-//             if (bookingOpt && bookingOpt.length === 2) {
-//                 const [booking, session] = bookingOpt;
-//                 this.renderCurrentBooking(booking, session);
-//             } else {
-//                 this.currentBookingContainer.innerHTML = '';
-//             }
-//         } catch (error) {
-//             console.error('Error loading current booking:', error);
-//             this.currentBookingContainer.innerHTML = '';
-//         }
-//     }
-
-//     renderSessions(sessionsByDay, bookingStatusMap, userBookingMap) {
-//         this.sessionsContainer.innerHTML = '';
-
-//         sessionsByDay.forEach(([day, sessions]) => {
-//             const daySection = document.createElement('div');
-//             daySection.className = 'day-section';
-            
-//             daySection.innerHTML = `
-//                 <h2 class="day-title">${day}</h2>
-//                 ${sessions.map(session => {
-//                     const isBooked = bookingStatusMap.get(session.id);
-//                     const isUsersBooking = userBookingMap.get(session.id);
-                    
-//                     let slotClasses = ['session-slot'];
-//                     if (isBooked) slotClasses.push('booked');
-//                     if (isUsersBooking) slotClasses.push('user-booking');
-                    
-//                     return `
-//                         <div class="${slotClasses.join(' ')}">
-//                             <span class="session-time">${session.time}</span>
-//                             ${isUsersBooking ? `
-//                                 <div class="booking-controls">
-//                                     <span class="your-booking-badge">Your Booking</span>
-//                                     <button class="cancel-btn" data-id="${session.id}">Cancel</button>
-//                                 </div>
-//                             ` : `
-//                                 <button class="book-btn" 
-//                                         data-id="${session.id}"
-//                                         ${isBooked || !session.isEnabled ? 'disabled' : ''}>
-//                                     ${isBooked ? 'Already Booked' : 'Book'}
-//                                 </button>
-//                             `}
-//                         </div>
-//                     `;
-//                 }).join('')}
-//             `;
-
-//             // Add event listeners to buttons
-//             daySection.querySelectorAll('.book-btn').forEach(btn => {
-//                 if (!btn.disabled) {
-//                     btn.addEventListener('click', () => this.handleBooking(btn.dataset.id));
-//                 }
-//             });
-
-//             daySection.querySelectorAll('.cancel-btn').forEach(btn => {
-//                 btn.addEventListener('click', (event) => this.cancelBooking(event));
-//             });
-
-//             this.sessionsContainer.appendChild(daySection);
-//         });
-//     }
-
-//     renderCurrentBooking(booking, session) {
-//         if (!booking || !session) {
-//             this.currentBookingContainer.innerHTML = '';
-//             return;
-//         }
-
-//         this.currentBookingContainer.innerHTML = `
-//             <div class="current-booking">
-//                 <h3>Your Current Booking</h3>
-//                 <p>Day: ${session.day}</p>
-//                 <p>Time: ${session.time}</p>
-//                 <button class="book-btn" onclick="bookingService.cancelBooking()">Cancel Booking</button>
-//             </div>
-//         `;
-//     }
-
-//     async handleBooking(sessionId) {
-//         const name = this.nameInput.value.trim();
-//         const phone = this.phoneInput.value.trim();
-    
-//         if (!name || !phone) {
-//             this.showMessage('Please fill in your name and phone number', 'error');
-//             return;
-//         }
-    
-//         // Find the button using the sessionId
-//         const button = document.querySelector(`button.book-btn[data-id="${sessionId}"]`);
-//         if (button) {
-//             button.classList.add('loading');
-//             button.disabled = true; // Optionally disable the button
-//         }
-    
-//         try {
-//             const success = await actor.makeBooking(Number(sessionId), { name, phone });
-//             if (success) {
-//                 this.showMessage('Booking successful!', 'success');
-//                 await this.loadSessions();
-//                 await this.loadCurrentBooking();
-//             } else {
-//                 this.showMessage('Booking failed. This slot might be already taken.', 'error');
-//                 await this.loadSessions(); // Refresh to show updated status
-//             }
-//         } catch (error) {
-//             console.error('Booking error:', error);
-//             this.showMessage('Error making booking. Please try again.', 'error');
-//         } finally {
-//             if (button) {
-//                 button.classList.remove('loading');
-//                 button.disabled = false;
-//             }
-//         }
-//     }
-    
-
-// // And update cancelBooking to accept the event:
-// async cancelBooking(event) {
-//     const button = event.currentTarget;
-//     button.classList.add('loading');
-    
-//     try {
-//         const success = await actor.cancelBooking(this.phoneInput.value);
-//         if (success) {
-//             this.showMessage('Booking cancelled successfully', 'success');
-//             await this.loadSessions();
-//             await this.loadCurrentBooking();
-//         } else {
-//             this.showMessage('Error cancelling booking', 'error');
-//         }
-//     } catch (error) {
-//         console.error('Cancel booking error:', error);
-//         this.showMessage('Error cancelling booking. Please try again.', 'error');
-//     } finally {
-//         button.classList.remove('loading');
-//     }
-// }
-
-
-//     showMessage(text, type = 'success') {
-//         this.messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
-//         setTimeout(() => {
-//             this.messageContainer.innerHTML = '';
-//         }, 5000);
-//     }
-
-//     loadUserInfo() {
-//         this.nameInput.value = localStorage.getItem('bookingName') || '';
-//         this.phoneInput.value = localStorage.getItem('bookingPhone') || '';
-//     }
-
-//     saveUserInfo() {
-//         localStorage.setItem('bookingName', this.nameInput.value);
-//         localStorage.setItem('bookingPhone', this.phoneInput.value);
-//     }
-// }
-
-// // Create global instance for cancel booking button
-// window.bookingService = new BookingService();
-
-
-
-// booking.js
-
-/**
- * Loads sessions and booking information for each session.
- * Renders the session UI with booking/cancellation controls.
- */
 async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumber) {
     try {
       const actor = auth.getCurrentActor();
@@ -303,7 +15,7 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
             let isUsersBooking = false;
             if (phoneNumber && isBooked) {
               const userBooking = await actor.getUserBooking(phoneNumber);
-              console.log("User booking response:", userBooking);
+              // console.log("User booking response:", userBooking);
               
               if (userBooking) {
                 let bookingRecord;
@@ -314,11 +26,11 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
                   bookingRecord = userBooking[0];
                 }
                 
-                console.log("Booking record sessionId:", bookingRecord?.sessionId);
-                console.log("Current session ID:", session.id);
+                // console.log("Booking record sessionId:", bookingRecord?.sessionId);
+                // console.log("Current session ID:", session.id);
                 
                 isUsersBooking = String(bookingRecord?.sessionId) === String(session.id);
-                console.log("isUsersBooking:", isUsersBooking);
+                // console.log("isUsersBooking:", isUsersBooking);
               }
             }
             
@@ -348,7 +60,7 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
       renderSessions(auth, sessionsContainer, sessionsByDay, bookingStatusMap, userBookingMap, phoneNumber, messageContainer);
     } catch (error) {
       console.error('Error loading sessions:', error);
-      showMessage(messageContainer, 'Error loading sessions. Please try again.', 'error');
+      showMessage(messageContainer, 'Erreur lors du chargement des sessions.', 'error');
     }
   }
   
@@ -368,7 +80,7 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
         currentBookingContainer.innerHTML = '';
       }
     } catch (error) {
-      console.error('Error loading current booking:', error);
+      console.error('Erreur de chargement de la réservation actuelle:', error);
       currentBookingContainer.innerHTML = '';
     }
   }
@@ -398,14 +110,14 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
               <span class="session-time">${session.time}</span>
               ${isUsersBooking ? `
                 <div class="booking-controls">
-                  <span class="your-booking-badge">Your Booking</span>
-                  <button class="cancel-btn" data-id="${session.id}">Cancel</button>
+                  <span class="your-booking-badge">Ma résa</span>
+                  <button class="cancel-btn" data-id="${session.id}">Annuler</button>
                 </div>
               ` : `
                 <button class="book-btn" 
                         data-id="${session.id}"
                         ${isBooked || !session.isEnabled ? 'disabled' : ''}>
-                  ${isBooked ? 'Already Booked' : 'Book'}
+                  ${isBooked ? 'Déjà réservé' : 'Je réserve'}
                 </button>
               `}
             </div>
@@ -445,7 +157,7 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
         <h3>Your Current Booking</h3>
         <p>Day: ${session.day}</p>
         <p>Time: ${session.time}</p>
-        <button class="cancel-booking-btn book-btn">Cancel Booking</button>
+        <button class="cancel-booking-btn book-btn">Annuler réservation</button>
       </div>
     `;
   
@@ -465,7 +177,7 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
     const phone = phoneInput.value.trim();
   
     if (!name || !phone) {
-      showMessage(messageContainer, 'Please fill in your name and phone number', 'error');
+      showMessage(messageContainer, 'Écris ton blaz et ton num ci-dessus', 'error');
       return;
     }
   
@@ -479,15 +191,15 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
       const actor = auth.getCurrentActor();
       const success = await actor.makeBooking(Number(sessionId), { name, phone });
       if (success) {
-        showMessage(messageContainer, 'Booking successful!', 'success');
+        showMessage(messageContainer, 'Réservation effectuée avec succès!', 'success');
         await reloadBookings(auth, phoneNumber);
       } else {
-        showMessage(messageContainer, 'Booking failed. This slot might be already taken.', 'error');
+        showMessage(messageContainer, 'Réservation échouée. Ce créneau est peut-être déjà réservé ou t\'as déjà réservé une session.', 'error');
         await reloadBookings(auth, phoneNumber);
       }
     } catch (error) {
       console.error('Booking error:', error);
-      showMessage(messageContainer, 'Error making booking. Please try again.', 'error');
+      showMessage(messageContainer, 'Erreur lors de la réservation. Réessaye.', 'error');
     } finally {
       if (button) {
         button.classList.remove('loading');
@@ -507,14 +219,14 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
       const actor = auth.getCurrentActor();
       const success = await actor.cancelBooking(phoneNumber);
       if (success) {
-        showMessage(messageContainer, 'Booking cancelled successfully', 'success');
+        showMessage(messageContainer, 'Réservation annulée avec succès', 'success');
         await reloadBookings(auth, phoneNumber);
       } else {
-        showMessage(messageContainer, 'Error cancelling booking', 'error');
+        showMessage(messageContainer, 'Erreur lors de l\'annulation de la réservation', 'error');
       }
     } catch (error) {
       console.error('Cancel booking error:', error);
-      showMessage(messageContainer, 'Error cancelling booking. Please try again.', 'error');
+      showMessage(messageContainer, 'Erreur lors de l\'annulation de la réservation. Réessayes.', 'error');
     } finally {
       button.classList.remove('loading');
     }

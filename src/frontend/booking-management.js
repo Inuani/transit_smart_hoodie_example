@@ -135,10 +135,10 @@ async function loadSessions() {
                     if (bookingDetails) {
                         bookingInfo = `
                             <div class="booking-info">
-                                <p>Booked by: ${bookingDetails.name}</p>
-                                <p>Phone: ${bookingDetails.phone}</p>
+                                <p>Réservé par : ${bookingDetails.name}</p>
+                                <p>Tèl : ${bookingDetails.phone}</p>
 <button class="action-btn remove-booking-btn" data-phone="${bookingDetails.phone}" style="margin-top: 10px;">
-                                    Remove Booking
+                                    Annuler la réservation
                                 </button>
                             </div>
                         `;
@@ -148,10 +148,10 @@ async function loadSessions() {
                 sessionItem.innerHTML = `
                     <div>
                         <strong>${session.time}</strong>
-                        <span>(ID: ${session.id})</span>
+                        
                     </div>
                     <button class="action-btn danger" data-id="${session.id}">
-                        Remove Session
+                        Retirer la session
                     </button>
                     ${bookingInfo}
                 `;
@@ -170,7 +170,7 @@ async function loadSessions() {
             }
             sessionsList.appendChild(daySection);
         }
-        console.log('Finished loading all sessions');
+        // console.log('Finished loading all sessions');
     } catch (error) {
         console.error('Error loading sessions:', error);
         showError('Error loading sessions');
@@ -179,16 +179,16 @@ async function loadSessions() {
 
 
 async function removeBooking(phone) {
-    if (!confirm(`Are you sure you want to remove the booking for phone ${phone}?`)) {
+    if (!confirm(`Sûr de vouloir supprimer la réservation pour le téléphone ${phone}?`)) {
         return;
     }
 
     try {
         await currentActor.cancelBooking(phone);
         await loadSessions();
-        showSuccess('Booking removed successfully');
+        showSuccess('Réservation supprimée avec succès');
     } catch (error) {
-        console.error('Error removing booking:', error);
+        console.error('Erreur lors de la suppression de la réservation:', error);
         showError('Error removing booking');
     }
 }
@@ -217,9 +217,9 @@ async function addSession() {
         await loadSessions();
         timeInput.value = '';
         
-        showSuccess('Session added successfully');
+        showSuccess('Session ajoutée avec succès');
     } catch (error) {
-        console.error('Error adding session:', error);
+        console.error('Erreur lors de l\'ajout de la session:', error);
         showError('Error adding session');
     } finally {
         addButton.disabled = false;
@@ -228,14 +228,14 @@ async function addSession() {
 }
 
 async function removeSession(id) {
-    if (!confirm('Are you sure you want to remove this session?')) {
+    if (!confirm('Sûr de vouloir supprimer cette session?')) {
         return;
     }
 
     try {
         await currentActor.removeSession(id);
         await loadSessions();
-        showSuccess('Session removed successfully');
+        showSuccess('Session supprimée avec succès');
     } catch (error) {
         console.error('Error removing session:', error);
         showError('Error removing session');
@@ -243,14 +243,14 @@ async function removeSession(id) {
 }
 
 async function resetAllBookings() {
-    if (!confirm('Are you sure you want to reset all bookings? This cannot be undone.')) {
+    if (!confirm('Sûr de vouloir réinitialiser toutes les réservations? Cette action est irréversible.')) {
         return;
     }
 
     try {
         await currentActor.resetAllBookings();
         await loadSessions();
-        showSuccess('All bookings have been reset');
+        showSuccess('Toutes les réservations ont été réinitialisées');
     } catch (error) {
         console.error('Error resetting bookings:', error);
         showError('Error resetting bookings');
@@ -274,9 +274,9 @@ async function resetAllBookings() {
 
 async function getBookingDetails(sessionId) {
     try {
-        console.log(`Getting booking details for session ${sessionId}`);
+        // console.log(`Getting booking details for session ${sessionId}`);
         const bookingInfo = await currentActor.getSessionBooking(sessionId);
-        console.log(`Received booking info:`, bookingInfo);
+        // console.log(`Received booking info:`, bookingInfo);
         if (bookingInfo) {
             // If bookingInfo is an array, use the first element.
             if (Array.isArray(bookingInfo) && bookingInfo.length > 0) {
