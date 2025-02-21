@@ -64,27 +64,61 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
     }
   }
   
-  /**
-   * Loads the current booking for the given phone number.
-   */
+ 
+  // async function loadCurrentBooking(auth, currentBookingContainer, phoneNumber) {
+  //   if (!phoneNumber) return;
+  
+  //   try {
+  //     const actor = auth.getCurrentActor();
+  //     const bookingOpt = await actor.getUserBooking(phoneNumber);
+  //     if (bookingOpt && bookingOpt.length === 2) {
+  //       const [booking, session] = bookingOpt;
+  //       renderCurrentBooking(auth, currentBookingContainer, booking, session, phoneNumber);
+  //     } else {
+  //       currentBookingContainer.innerHTML = '';
+  //     }
+  //   } catch (error) {
+  //     console.error('Erreur de chargement de la réservation actuelle:', error);
+  //     currentBookingContainer.innerHTML = '';
+  //   }
+  // }
+  
   async function loadCurrentBooking(auth, currentBookingContainer, phoneNumber) {
     if (!phoneNumber) return;
-  
+
+    const nameInput = document.getElementById('name');
+    const phoneInput = document.getElementById('phone');
+
     try {
-      const actor = auth.getCurrentActor();
-      const bookingOpt = await actor.getUserBooking(phoneNumber);
-      if (bookingOpt && bookingOpt.length === 2) {
-        const [booking, session] = bookingOpt;
-        renderCurrentBooking(auth, currentBookingContainer, booking, session, phoneNumber);
-      } else {
-        currentBookingContainer.innerHTML = '';
-      }
+        const actor = auth.getCurrentActor();
+        const bookingOpt = await actor.getUserBooking(phoneNumber);
+        
+        console.log('Current booking:', bookingOpt); // Add this debug line
+        
+        // Fix the array destructuring
+        if (bookingOpt && Array.isArray(bookingOpt[0])) {
+            // User has a booking, disable the inputs
+            nameInput.disabled = true;
+            phoneInput.disabled = true;
+            
+            const [booking, session] = bookingOpt[0]; // Note the [0] here
+            renderCurrentBooking(auth, currentBookingContainer, booking, session, phoneNumber);
+        } else {
+            // No booking, enable the inputs
+            nameInput.disabled = false;
+            phoneInput.disabled = false;
+            currentBookingContainer.innerHTML = '';
+        }
     } catch (error) {
-      console.error('Erreur de chargement de la réservation actuelle:', error);
-      currentBookingContainer.innerHTML = '';
+        console.error('Erreur de chargement de la réservation actuelle:', error);
+        currentBookingContainer.innerHTML = '';
+        // Make sure inputs are enabled on error
+        nameInput.disabled = false;
+        phoneInput.disabled = false;
     }
-  }
-  
+}
+
+
   /**
    * Renders the sessions UI.
    */
@@ -110,7 +144,7 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
               <span class="session-time">${session.time}</span>
               ${isUsersBooking ? `
                 <div class="booking-controls">
-                  <span class="your-booking-badge">Ma résa</span>
+                  <span class="your-booking-badge">Ma session</span>
                   <button class="cancel-btn" data-id="${session.id}">Annuler</button>
                 </div>
               ` : `
@@ -154,10 +188,9 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
   
     container.innerHTML = `
       <div class="current-booking">
-        <h3>Your Current Booking</h3>
-        <p>Day: ${session.day}</p>
-        <p>Time: ${session.time}</p>
-        <button class="cancel-booking-btn book-btn">Annuler réservation</button>
+        <h3>Ma session :</h3>
+        <h3>${session.day} ${session.time}</h3>
+        <button class="cancel-booking-btn book-btn">Annuler ma réservation</button>
       </div>
     `;
   
@@ -166,71 +199,173 @@ async function loadSessions(auth, sessionsContainer, messageContainer, phoneNumb
       cancelButton.addEventListener('click', (event) => handleCancellation(auth, event, phoneNumber, document.getElementById('message')));
     }
   }
+
+  // async function handleBooking(auth, sessionId, phoneNumber, messageContainer) {
+  //   const nameInput = document.getElementById('name');
+  //   const phoneInput = document.getElementById('phone');
+  //   const name = nameInput.value.trim();
+  //   const phone = phoneInput.value.trim();
   
-  /**
-   * Handles making a booking.
-   */
-  async function handleBooking(auth, sessionId, phoneNumber, messageContainer) {
-    const nameInput = document.getElementById('name');
-    const phoneInput = document.getElementById('phone');
-    const name = nameInput.value.trim();
-    const phone = phoneInput.value.trim();
+  //   if (!name || !phone) {
+  //     showMessage(messageContainer, 'Écris ton blaz et ton num ci-dessus', 'error');
+  //     return;
+  //   }
   
-    if (!name || !phone) {
+  //   const button = document.querySelector(`button.book-btn[data-id="${sessionId}"]`);
+  //   if (button) {
+  //     button.classList.add('loading');
+  //     button.disabled = true;
+  //   }
+  
+  //   try {
+  //     const actor = auth.getCurrentActor();
+  //     const success = await actor.makeBooking(Number(sessionId), { name, phone });
+  //     if (success) {
+  //       showMessage(messageContainer, 'Réservation effectuée avec succès!', 'success');
+  //       await reloadBookings(auth, phoneNumber);
+  //     } else {
+  //       showMessage(messageContainer, 'Réservation échouée. Ce créneau est peut-être déjà réservé ou t\'as déjà réservé une session.', 'error');
+  //       await reloadBookings(auth, phoneNumber);
+  //     }
+  //   } catch (error) {
+  //     console.error('Booking error:', error);
+  //     showMessage(messageContainer, 'Erreur lors de la réservation. Réessaye.', 'error');
+  //   } finally {
+  //     if (button) {
+  //       button.classList.remove('loading');
+  //       button.disabled = false;
+  //     }
+  //   }
+  // }
+  
+  // Update the handleBooking function
+async function handleBooking(auth, sessionId, phoneNumber, messageContainer) {
+  const nameInput = document.getElementById('name');
+  const phoneInput = document.getElementById('phone');
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+
+  if (!name || !phone) {
       showMessage(messageContainer, 'Écris ton blaz et ton num ci-dessus', 'error');
       return;
-    }
-  
-    const button = document.querySelector(`button.book-btn[data-id="${sessionId}"]`);
-    if (button) {
+  }
+
+  const button = document.querySelector(`button.book-btn[data-id="${sessionId}"]`);
+  if (button) {
       button.classList.add('loading');
       button.disabled = true;
-    }
-  
-    try {
+  }
+
+  try {
       const actor = auth.getCurrentActor();
       const success = await actor.makeBooking(Number(sessionId), { name, phone });
       if (success) {
-        showMessage(messageContainer, 'Réservation effectuée avec succès!', 'success');
-        await reloadBookings(auth, phoneNumber);
+          showPopup('Réservation réussie! 🎉', 'Ta session a été réservée avec succès.');
+          await reloadBookings(auth, phoneNumber);
       } else {
-        showMessage(messageContainer, 'Réservation échouée. Ce créneau est peut-être déjà réservé ou t\'as déjà réservé une session.', 'error');
-        await reloadBookings(auth, phoneNumber);
+          showMessage(messageContainer, 'Réservation échouée. Ce créneau est peut-être déjà réservé ou t\'as déjà réservé une session.', 'error');
+          await reloadBookings(auth, phoneNumber);
       }
-    } catch (error) {
+  } catch (error) {
       console.error('Booking error:', error);
       showMessage(messageContainer, 'Erreur lors de la réservation. Réessaye.', 'error');
-    } finally {
+  } finally {
       if (button) {
-        button.classList.remove('loading');
-        button.disabled = false;
+          button.classList.remove('loading');
+          button.disabled = false;
       }
-    }
   }
+}
+
+// Add new function for popup
+function showPopup(title, message) {
+  // Create popup elements
+  const popup = document.createElement('div');
+  popup.className = 'success-popup';
   
-  /**
-   * Handles cancelling a booking.
-   */
+  popup.innerHTML = `
+      <div class="popup-content">
+          <div class="popup-header">
+              <h3>${title}</h3>
+              <button class="close-popup">&times;</button>
+          </div>
+          <div class="popup-body">
+              <p>${message}</p>
+          </div>
+      </div>
+  `;
+
+  // Add to document
+  document.body.appendChild(popup);
+
+  // Add close button functionality
+  const closeButton = popup.querySelector('.close-popup');
+  closeButton.addEventListener('click', () => {
+      popup.classList.add('fade-out');
+      setTimeout(() => {
+          popup.remove();
+      }, 300);
+  });
+
+  // Auto close after 5 seconds
+  setTimeout(() => {
+      if (popup && document.body.contains(popup)) {
+          popup.classList.add('fade-out');
+          setTimeout(() => {
+              popup.remove();
+          }, 300);
+      }
+  }, 8000);
+}
+  
+  // async function handleCancellation(auth, event, phoneNumber, messageContainer) {
+  //   const button = event.currentTarget;
+  //   button.classList.add('loading');
+    
+  //   try {
+  //     const actor = auth.getCurrentActor();
+  //     const success = await actor.cancelBooking(phoneNumber);
+  //     if (success) {
+  //       showMessage(messageContainer, 'Réservation annulée avec succès', 'success');
+  //       await reloadBookings(auth, phoneNumber);
+  //     } else {
+  //       showMessage(messageContainer, 'Erreur lors de l\'annulation de la réservation', 'error');
+  //     }
+  //   } catch (error) {
+  //     console.error('Cancel booking error:', error);
+  //     showMessage(messageContainer, 'Erreur lors de l\'annulation de la réservation. Réessayes.', 'error');
+  //   } finally {
+  //     button.classList.remove('loading');
+  //   }
+  // }
+
+
   async function handleCancellation(auth, event, phoneNumber, messageContainer) {
     const button = event.currentTarget;
     button.classList.add('loading');
     
     try {
-      const actor = auth.getCurrentActor();
-      const success = await actor.cancelBooking(phoneNumber);
-      if (success) {
-        showMessage(messageContainer, 'Réservation annulée avec succès', 'success');
-        await reloadBookings(auth, phoneNumber);
-      } else {
-        showMessage(messageContainer, 'Erreur lors de l\'annulation de la réservation', 'error');
-      }
+        const actor = auth.getCurrentActor();
+        const success = await actor.cancelBooking(phoneNumber);
+        if (success) {
+            // Enable inputs after successful cancellation
+            const nameInput = document.getElementById('name');
+            const phoneInput = document.getElementById('phone');
+            nameInput.disabled = false;
+            phoneInput.disabled = false;
+            
+            showMessage(messageContainer, 'Réservation annulée avec succès', 'success');
+            await reloadBookings(auth, phoneNumber);
+        } else {
+            showMessage(messageContainer, 'Erreur lors de l\'annulation de la réservation', 'error');
+        }
     } catch (error) {
-      console.error('Cancel booking error:', error);
-      showMessage(messageContainer, 'Erreur lors de l\'annulation de la réservation. Réessayes.', 'error');
+        console.error('Cancel booking error:', error);
+        showMessage(messageContainer, 'Erreur lors de l\'annulation de la réservation. Réessayes.', 'error');
     } finally {
-      button.classList.remove('loading');
+        button.classList.remove('loading');
     }
-  }
+}
   
   /**
    * Reloads both sessions and current booking information.

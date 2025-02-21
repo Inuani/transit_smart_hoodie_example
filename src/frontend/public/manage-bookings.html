@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +22,8 @@
             flex-wrap: wrap;
         }
 
-        .session-form input, .session-form select {
+        .session-form input,
+        .session-form select {
             padding: 8px 12px;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -45,17 +47,23 @@
             gap: 10px;
         }
 
+        .session-item:has(.booking-info) {
+            border: 2px solid rgb(144, 255, 128, 0.7);
+        }
+
         .booking-info {
-            background: rgba(255, 51, 102, 0.1);
+            background: rgba(139, 255, 121, 0.3);
             padding: 10px;
             border-radius: 6px;
-            margin-top: 10px;
+            margin-top:
+                /* Update to use themed color */
+                10px;
             width: 100%;
         }
 
         .action-btn {
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
+            color: black;
             border: none;
             padding: 8px 16px;
             border-radius: 8px;
@@ -64,12 +72,16 @@
         }
 
         .action-btn.danger {
-            background: linear-gradient(45deg, #ff3366, #ff4f4f);
+            background: linear-gradient(45deg, var(--danger-color), var(--danger-secondary));
         }
 
         .action-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.3);
+            box-shadow: 0 4px 15px var(--button-shadow-hover);
+        }
+
+        .action-btn.danger:hover {
+            box-shadow: 0 4px 15px var(--secondary-color);
         }
 
         .section-title {
@@ -83,8 +95,13 @@
         }
 
         @keyframes spinner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         @media screen and (max-width: 600px) {
@@ -98,21 +115,46 @@
                 text-align: center;
             }
 
+            .session-item>div:first-child {
+                order: 1;
+            }
+
+            .booking-info {
+                order: 2;
+                margin-bottom: 10px;
+            }
+
+            .action-btn.danger {
+                order: 3;
+                margin-top: 10px;
+            }
+
             .session-item button {
                 width: 100%;
-                margin-top: 10px;
+            }
+
+            .remove-booking-btn {
+                margin-bottom: 10px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="basic-container">
             <header class="header">
-                <h1>Gestion des réservations</h1>
+                <h1>Gestion des réservations studio Transit Records</h1>
             </header>
 
-            <!-- Add New Session Section -->
+            <!-- Sessions List Section -->
+            <div class="admin-section">
+                <h2 class="section-title">Sessions</h2>
+                <div id="sessions-list" class="sessions-list">
+                    <!-- Sessions will be loaded here -->
+                </div>
+            </div>
+
             <div class="admin-section">
                 <h2 class="section-title">Ajouter une nouvelle session</h2>
                 <div class="session-form">
@@ -130,17 +172,8 @@
                 </div>
             </div>
 
-            <!-- Sessions List Section -->
-            <div class="admin-section">
-                <h2 class="section-title">Sessions</h2>
-                <div id="sessions-list" class="sessions-list">
-                    <!-- Sessions will be loaded here -->
-                </div>
-            </div>
 
-            <!-- Global Actions Section -->
             <div class="admin-section">
-                <!-- <h2 class="section-title">Global Actions</h2> -->
                 <button id="reset-bookings-btn" class="action-btn danger">Réinitialiser toutes les réservations</button>
             </div>
         </div>
@@ -148,4 +181,5 @@
 
     <script src="/bundle.js" type="module"></script>
 </body>
+
 </html>

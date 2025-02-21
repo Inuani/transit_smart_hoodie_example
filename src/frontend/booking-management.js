@@ -136,7 +136,7 @@ async function loadSessions() {
                         bookingInfo = `
                             <div class="booking-info">
                                 <p>Réservé par : ${bookingDetails.name}</p>
-                                <p>Tèl : ${bookingDetails.phone}</p>
+                                <p> Contact : ${bookingDetails.phone}</p>
 <button class="action-btn remove-booking-btn" data-phone="${bookingDetails.phone}" style="margin-top: 10px;">
                                     Annuler la réservation
                                 </button>
@@ -335,10 +335,10 @@ export function initializeBookingManagement(auth) {
     loadSessions();
 
     // Refresh sessions every 30 seconds
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-    refreshInterval = setInterval(() => loadSessions(), 30000);
+    // if (refreshInterval) {
+    //     clearInterval(refreshInterval);
+    // }
+    // refreshInterval = setInterval(() => loadSessions(), 30000);
 
     return {
         loadSessions,
